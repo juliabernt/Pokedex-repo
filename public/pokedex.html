@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokedex</title>
+</head>
+<body>
+    <h1>Pokemon</h1>
+    <p>Loading Pokemons</p>
+    <input type="text" id="searchbar" placeholder="Pokémon suchen...">
+    <button type="button" id="searchbtn">Suchen</button>
+    <p id="searchresponse">Antwort</p>
+    <ul id="pokemon-list"></ul>
+    <script>
+        async function getdatafromdb() {
+            const response = await fetch('/api/pokemon');
+            const pokedata = await response.json();
+            const list = document.getElementById("pokemon-list");
+
+            for (let pokemon of pokedata) {
+                const listelement = document.createElement("li");
+                const imageelement = document.createElement("img");
+                imageelement.src = pokemon.image;
+                listelement.textContent = pokemon.name;
+                list.appendChild(listelement);
+                list.appendChild(imageelement);
+            }
+        }
+        const searchbar = document.getElementById("searchbar");
+        const searchbtn = document.getElementById("searchbtn");
+        const searchresponse = document.getElementById("searchresponse");
+
+        function searchforpokemon() {
+            const eingabe = searchbar.value.toLowerCase().trim();
+            if (eingabe === "") {
+                searchresponse.textContent = "Bitte Namen eingeben";
+                return;
+            }
+
+            const allPokemon = document.querySelectorAll("#pokemon-list li"); //gibt mir alle Elemente aus der Liste zurück
+            allPokemon.forEach((li) => {
+                const name = li.textContent.toLowerCase();
+            })
+
+            let treffer = null;
+            for (let i of allPokemon) {
+                if (i.textContent.toLowerCase().includes(eingabe)) {
+                treffer = i.textContent;
+                break;
+                }
+            }
+
+            //Ergebnis der Suche anzeigen
+            if (treffer != null) {
+                searchresponse.textContent = treffer;
+            }
+            else {
+                searchresponse.textContent = "Kein Pokemon gefunden";
+            }
+        }
+
+        searchbtn.addEventListener("click", searchforpokemon);
+        // 2. Suche auslösen, wenn im Textfeld "Enter" gedrückt wird
+        searchbar.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") {
+                searchforpokemon();
+            }
+        });
+
+        getdatafromdb();
+    </script>
+    <main>
+    </main>
+</body>
+</html>
