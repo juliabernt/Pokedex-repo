@@ -7,17 +7,26 @@
     <style>
     #pokemon-list {
         list-style: none;
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
+        display: grid; /* Einträge in einem Raster anordnen */
+        grid-template-columns: repeat(3, 1fr); /* 3 Spalten, alle gleich breit */
+        gap: 20px; /* 20 Pixel Abstand zwischen den Karten */
     }
     #pokemon-list li {
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        padding: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* leichter Schatten unter der Karte */
+        padding: 10px;   /* 10 Pixel Innenabstand */
     }
+    
     #pokemon-list img {
-        width: 150px;
+        width: 150px;/* Bild ist 150 Pixel breit */ 
     }
+    h1 {
+    text-align: center;
+    font-size: 48px;
+    color: #ffcb05;              /* Pokemon-Gelb */
+    -webkit-text-stroke: 2px #3466af;  /* blauer Rand um die Buchstaben */
+    letter-spacing: 4px;         /* Abstand zwischen den Buchstaben */
+    text-transform: uppercase;   /* alles in Großbuchstaben */
+}
 </style>
 </head>
 
