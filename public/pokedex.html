@@ -35,9 +35,9 @@
             const list = document.getElementById("pokemon-list"); // die leere Liste holen
 
             for (let pokemon of pokedata) { // für jedes Pokemon
-                const listelement = document.createElement("li");
-                const imageelement = document.createElement("img");    // ← diese Zeile fehlt
-                imageelement.src = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/" + pokemon.id + ".png";
+                const listelement = document.createElement("li"); // einen neuen Listeneintrag erstellen (das wird unsere Karte)
+                const imageelement = document.createElement("img");    // // ein neues Bild-Element erstellen (noch leer, ohne Quelle)
+                imageelement.src = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/" + pokemon.id + ".png"; //// Bild-URL zusammensetzen: fester Link zum Bilder-Ordner + Pokemon-Nummer + Dateiendung
                 listelement.textContent = pokemon.name; // Name als Tex
                 listelement.appendChild(imageelement); // beides in die Liste hängen
                 list.appendChild(listelement);
