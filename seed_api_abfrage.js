@@ -1,7 +1,7 @@
 // 1. NEU: SQLite-Paket laden und Datenbank-Datei öffnen/erstellen
 const Database = require('better-sqlite3');
 const pokedexdb = new Database('pokedex.db');
-pokedexdb.pragma('foreign_keys = ON'); //Fremdschlüssel werden schärfer kontrolliert.
+pokedexdb.pragma('foreign_keys = ON'); //Fremdschlüssel werden schärfer kontrolliert. // pokedexdb.pragma('foreign_keys = ON'); // sorgt dafür, dass Verknüpfungen nur auf existierende Einträge zeigen dürfen (bei SQLite sonst aus)
 
 // 2. NEU: Tabellen anlegen
 function setupDatabase() {
