@@ -32,11 +32,15 @@
 
 <body>
     <h1>Pokemon</h1> <!-- Überschrift der Seite -->
-    <p>Loading Pokemons</p>
     <input type="text" id="searchbar" placeholder="Pokémon suchen..."> <!-- Suchfeld -->
     <button type="button" id="searchbtn">Suchen</button>
-    <p id="searchresponse">Antwort</p>
+
+    <div id="search-responce-container" >
+        <p id="searchresponse">Gib einen Namen ein und klicke auf Suchen</p>
+        <img id="searchimage" src="" alt="" style="display: none; width: 150px;">
+    </div>
     <ul id="pokemon-list"></ul>
+
     <script>
         async function getdatafromdb() {
             const response = await fetch('/api/pokemon'); //Server nach Daten fragen 
@@ -47,7 +51,7 @@
                 const listelement = document.createElement("li"); // einen neuen Listeneintrag erstellen (das wird unsere Karte)
                 const imageelement = document.createElement("img");    // // ein neues Bild-Element erstellen (noch leer, ohne Quelle)
                 imageelement.src = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/" + pokemon.id + ".png"; //// Bild-URL zusammensetzen: fester Link zum Bilder-Ordner + Pokemon-Nummer + Dateiendung
-                listelement.textContent = pokemon.name; // Name als Tex
+                listelement.textContent = pokemon.name; // Name als Text
                 listelement.appendChild(imageelement); // beides in die Liste hängen
                 list.appendChild(listelement);
             }
@@ -55,33 +59,41 @@
         const searchbar = document.getElementById("searchbar"); // die drei Zeilen verbinden java script mit html elementen
         const searchbtn = document.getElementById("searchbtn");
         const searchresponse = document.getElementById("searchresponse");
+        const searchimage = document.getElementById("searchimage");
 
-        function searchforpokemon() {
-            const eingabe = searchbar.value.toLowerCase().trim(); // eimgabe vom nutzer
+        function searchforpokemon() { //unsere Methode für die Suche von Pokemons
+            const eingabe = searchbar.value.toLowerCase().trim(); // eingabe vom nutzer
             if (eingabe === "") {
-                searchresponse.textContent = "Bitte Namen eingeben"; // wenn nichts eingegebn wurde
+                searchresponse.textContent = "Bitte Namen eingeben";// wenn nichts eingegebn wurde
+                searchimage.style.display = "none"; 
                 return;
             }
 
             const allPokemon = document.querySelectorAll("#pokemon-list li"); //gibt mir alle Elemente aus der Liste zurück
-            allPokemon.forEach((li) => {
-                const name = li.textContent.toLowerCase();
-            })
-
             let treffer = null;
+
             for (let i of allPokemon) {
-                if (i.textContent.toLowerCase().includes(eingabe)) {
-                treffer = i.textContent;
+                if (i.textContent.toLowerCase().includes(eingabe)) { // Wenn Treffer gefunden: Den Text des passenden Listeneintrags in der Variable speichern
+                treffer = i;
                 break;
                 }
             }
 
             //Ergebnis der Suche anzeigen
             if (treffer != null) {
-                searchresponse.textContent = treffer;
+                const name = treffer.firstChild.textContent;
+                const image_in_card = treffer.querySelector("img");
+                searchresponse.textContent = name;
+
+                if (image_in_card) {
+                    searchimage.src = image_in_card.src;
+                    searchimage.alt = name;
+                    searchimage.style.display = "block"; // Bild anzeigen
+                }
             }
             else {
                 searchresponse.textContent = "Kein Pokemon gefunden";
+                searchimage.style.display = "none";
             }
         }
 
