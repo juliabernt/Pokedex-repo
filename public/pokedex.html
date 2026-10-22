@@ -19,6 +19,16 @@
     #pokemon-list img {
         width: 150px;/* Bild ist 150 Pixel breit */ 
     }
+
+    #search-response-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 20px auto;
+        text-align: center;
+        background-color: rgb(222, 215, 137);
+    }
+
     h1 {
     text-align: center;
     font-size: 48px;
@@ -35,7 +45,7 @@
     <input type="text" id="searchbar" placeholder="Pokémon suchen..."> <!-- Suchfeld -->
     <button type="button" id="searchbtn">Suchen</button>
 
-    <div id="search-responce-container" >
+    <div id="search-response-container" >
         <p id="searchresponse">Gib einen Namen ein und klicke auf Suchen</p>
         <img id="searchimage" src="" alt="" style="display: none; width: 150px;">
     </div>
