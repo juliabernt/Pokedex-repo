@@ -1,55 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pokedex</title>
-    <style>
-    #pokemon-list {
-        list-style: none;
-        display: grid; /* Einträge in einem Raster anordnen */
-        grid-template-columns: repeat(3, 1fr); /* 3 Spalten, alle gleich breit */
-        gap: 20px; /* 20 Pixel Abstand zwischen den Karten */
-    }
-    #pokemon-list li {
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* leichter Schatten unter der Karte */
-        padding: 10px;   /* 10 Pixel Innenabstand */
-    }
-    
-    #pokemon-list img {
-        width: 150px;/* Bild ist 150 Pixel breit */ 
-    }
-
-    #search-response-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin: 20px auto;
-        text-align: center;
-        background-color: rgb(222, 215, 137);
-    }
-
-    h1 {
-    text-align: center;
-    font-size: 48px;
-    color: #ffcb05;              /* Pokemon-Gelb */
-    -webkit-text-stroke: 2px #3466af;  /* blauer Rand um die Buchstaben */
-    letter-spacing: 4px;         /* Abstand zwischen den Buchstaben */
-    text-transform: uppercase;   /* alles in Großbuchstaben */
-}
-</style>
+    <link rel="stylesheet" href="pokedex.css">
 </head>
 
 <body>
-    <h1>Pokemon</h1> <!-- Überschrift der Seite -->
-    <input type="text" id="searchbar" placeholder="Pokémon suchen..."> <!-- Suchfeld -->
-    <button type="button" id="searchbtn">Suchen</button>
+    <header>
+        <h1>Pokemon</h1> <!-- Überschrift der Seite -->
+    </header>
 
-    <div id="search-response-container" >
-        <p id="searchresponse">Gib einen Namen ein und klicke auf Suchen</p>
-        <img id="searchimage" src="" alt="" style="display: none; width: 150px;">
+    <div id="layout-container">
+        <nav id="sidemenu">
+            <ul>
+                <li><a href="#">Pokedex</a></li>
+                <li><a href="#">Typen</a></li>
+            </ul>
+        </nav>
+        <main>
+            <div id="searchbar-cont">
+                <input type="text" id="searchbar" placeholder="Pokémon suchen..."> <!-- Suchfeld -->
+                <button type="button" id="searchbtn">Suchen</button>
+            </div>
+            
+            <div id="search-response-container">
+                <p id="searchresponse">Gib einen Namen ein und klicke auf Suchen</p>
+                <img id="searchimage" src="" alt="" style="display: none; width: 150px;">
+            </div>
+            <ul id="pokemon-list"></ul>
+        </main>
     </div>
-    <ul id="pokemon-list"></ul>
+
+    <footer>
+        <p>Pokedex Projekt | Web-Programmierung | Armbruster, Bendig, Bernt</p>
+    </footer>
+
 
     <script>
         async function getdatafromdb() {
@@ -75,7 +63,7 @@
             const eingabe = searchbar.value.toLowerCase().trim(); // eingabe vom nutzer
             if (eingabe === "") {
                 searchresponse.textContent = "Bitte Namen eingeben";// wenn nichts eingegebn wurde
-                searchimage.style.display = "none"; 
+                searchimage.style.display = "none";
                 return;
             }
 
@@ -84,8 +72,8 @@
 
             for (let i of allPokemon) {
                 if (i.textContent.toLowerCase().includes(eingabe)) { // Wenn Treffer gefunden: Den Text des passenden Listeneintrags in der Variable speichern
-                treffer = i;
-                break;
+                    treffer = i;
+                    break;
                 }
             }
 
@@ -120,4 +108,5 @@
     <main>
     </main>
 </body>
+
 </html>

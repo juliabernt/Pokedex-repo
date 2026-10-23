@@ -1,0 +1,64 @@
+#pokemon-list {
+    list-style: none;
+    display: grid; /* Einträge in einem Raster anordnen */
+    grid-template-columns: repeat(3, 1fr); /* 3 Spalten, alle gleich breit */
+    gap: 1.25rem; /* 20 Pixel Abstand zwischen den Karten */
+}
+#pokemon-list li {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* leichter Schatten unter der Karte */
+    padding: 0.625rem;   /* 10 Pixel Innenabstand */
+}
+    
+#pokemon-list img {
+    width: 9.375rem;/* Bild ist 150 Pixel breit */ 
+}
+
+#search-response-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 1.25rem auto; /*vorher 150px*/
+    text-align: center;
+    background-color: rgb(222, 215, 137);
+}
+
+
+
+h1 {
+    text-align: center;
+    font-size: 3rem;
+    color: #ffcb05;              /* Pokemon-Gelb */
+    -webkit-text-stroke: 0.125rem #3466af;  /* blauer Rand um die Buchstaben */
+    letter-spacing: 0.25rem;         /* Abstand zwischen den Buchstaben */
+    text-transform: uppercase;   /* alles in Großbuchstaben */
+}
+
+#layout-container {
+    display: flex; 
+    gap: 1.25rem; /* Abstand zwischen Navi und Inhalt */
+    max-width: 75rem;
+    margin: 0 auto; /* Zentriert die Webseite auf großen Bildschirmen */
+}
+
+#sidemenu {
+    width: 12.5rem;
+    background-color: rgb(149, 227, 227);
+    padding: 1rem;
+    /*border-radius: 0.5rem;*/
+}
+
+main {
+    flex-grow: 1; /* Der Hauptinhalt nimmt den restlichen verfügbaren Platz ein */
+}
+header {
+    width: 100%;
+    display: flex;
+    /*justify-content: center;*/
+    background-color: #e4d082;
+}
+
+#searchbar-cont {
+    width: 100%;
+    display: flex;
+    
+}
