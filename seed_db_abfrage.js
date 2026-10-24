@@ -20,7 +20,19 @@ app.get('/api/pokemon', function(request, response){ //wird ausgeführt, wenn je
 
 })
 
+app.get('/api/pokemon/:id', (req, res) => {
+    const pokemonId = req.params.id;
+    const statement = pokedexdb.prepare('SELECT * FROM pokemon WHERE id = ?');
+    const pokemon = statement.get(pokemonId);
+
+    if(pokemon != null) {
+        res.json(pokemon);
+    }
+    else {
+        res.status(404).json({ error: "Pokémon nicht gefunden" });
+    }
+})
+
 app.listen(3000, () => { // starte den Server auf Port 3000 und gebe eine Meldung aus, dass er läuft
     console.log("Server läuft auf http://localhost:3000/api/pokemon");
 });
-
