@@ -6,11 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pokedex</title>
     <link rel="stylesheet" href="pokedex.css">
+    <!-- Icon-Sammlung "Tabler Icons" (dünne Umriss-Icons) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 </head>
 
 <body>
     <header>
-        <h1>Pokemon</h1> <!-- Überschrift der Seite -->
+        <h1><i class="ti ti-pokeball"></i> Pokemon</h1> <!-- Überschrift der Seite mit Pokéball-Icon -->
+
+        <!-- Menüleiste oben rechts im Header -->
+        <nav id="topmenu">
+            <a class="active" href="pokedex.html"><i class="ti ti-home"></i> Pokedex</a>
+            <a href="#" id="favlink"><i class="ti ti-star"></i> Favoriten</a>
+            <a href="#"><i class="ti ti-scale"></i> Vergleichen</a>
+            <a href="#"><i class="ti ti-users"></i> Über uns</a>
+        </nav>
     </header>
 
     <div id="layout-container">
@@ -25,9 +35,9 @@
                 <input type="text" id="searchbar" placeholder="Pokémon suchen..."> <!-- Suchfeld -->
                 <button type="button" id="searchbtn">Suchen</button>
             </div>
-            
+
             <div id="search-response-container">
-                <p id="searchresponse">Gib einen Namen ein und klicke auf Suchen</p>
+                <p id="searchresponse"></p>
                 <img id="searchimage" src="" alt="" style="display: none; width: 150px;">
             </div>
             <ul id="pokemon-list"></ul>
@@ -40,46 +50,96 @@
 
 
     <script>
+        // Favoriten aus dem Browser-Speicher laden
+        // localStorage kann nur Text speichern, deshalb wandelt JSON.parse den Text wieder in eine Liste um
+        // gibt es noch keine Favoriten, starten wir mit einer leeren Liste []
+        let favoriten = JSON.parse(localStorage.getItem("favoriten")) || [];
+
         async function getdatafromdb() {
-            const response = await fetch('/api/pokemon'); //Server nach Daten fragen 
+            const response = await fetch('/api/pokemon'); // Server nach Daten fragen
             const pokedata = await response.json(); // Antwort in JS-Objekte umwandeln
             const list = document.getElementById("pokemon-list"); // die leere Liste holen
 
-            for (let pokemon of pokedata) { // für jedes Pokemon
-                const listelement = document.createElement("li"); // einen neuen Listeneintrag erstellen (das wird unsere Karte)
-                const imageelement = document.createElement("img");    // // ein neues Bild-Element erstellen (noch leer, ohne Quelle)
-                imageelement.src = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/" + pokemon.id + ".png"; //// Bild-URL zusammensetzen: fester Link zum Bilder-Ordner + Pokemon-Nummer + Dateiendung
-                listelement.textContent = pokemon.name; // Name als Text
-                listelement.appendChild(imageelement); // beides in die Liste hängen
+            for (let pokemon of pokedata) { // für jedes Pokemon aus der Datenbank
+                // neue Karte erstellen und die Nummer des Pokemons daran merken
+                const listelement = document.createElement("li");
+                listelement.dataset.id = pokemon.id;
+
+                // Bild: URL aus festem Link + Pokemon-Nummer + .png zusammensetzen
+                const imageelement = document.createElement("img");
+                imageelement.src = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/" + pokemon.id + ".png";
+
+                // Nummer: padStart füllt vorne mit Nullen auf 4 Stellen auf (1 wird zu 0001)
+                const nrelement = document.createElement("p");
+                nrelement.className = "nr";
+                nrelement.textContent = "Nr. " + String(pokemon.id).padStart(4, "0");
+
+                // Name
+                const nameelement = document.createElement("p");
+                nameelement.className = "name";
+                nameelement.textContent = pokemon.name;
+
+                // Bild, Nummer und Name untereinander in die Karte legen
+                listelement.appendChild(imageelement);
+                listelement.appendChild(nrelement);
+                listelement.appendChild(nameelement);
+
+                // Stern-Button erstellen
+                const starbutton = document.createElement("button");
+                starbutton.className = "stern";
+
+                // schon Favorit? dann voller Stern, sonst leerer Stern
+                if (favoriten.includes(pokemon.id)) {
+                    starbutton.textContent = "★";
+                } else {
+                    starbutton.textContent = "☆";
+                }
+
+                // was beim Klick auf den Stern passiert
+                starbutton.addEventListener("click", function () {
+                    if (favoriten.includes(pokemon.id)) {
+                        const position = favoriten.indexOf(pokemon.id); // an welcher Stelle steht es?
+                        favoriten.splice(position, 1);                  // dort 1 Eintrag löschen
+                        starbutton.textContent = "☆";
+                    } else {
+                        favoriten.push(pokemon.id);                     // zur Liste hinzufügen
+                        starbutton.textContent = "★";
+                    }
+                    localStorage.setItem("favoriten", JSON.stringify(favoriten)); // im Browser speichern
+                });
+
+                // Stern in die Karte, Karte in die Liste
+                listelement.appendChild(starbutton);
                 list.appendChild(listelement);
             }
         }
-        const searchbar = document.getElementById("searchbar"); // die drei Zeilen verbinden java script mit html elementen
+
+        const searchbar = document.getElementById("searchbar"); // die drei Zeilen verbinden JavaScript mit HTML-Elementen
         const searchbtn = document.getElementById("searchbtn");
         const searchresponse = document.getElementById("searchresponse");
         const searchimage = document.getElementById("searchimage");
 
-        function searchforpokemon() { //unsere Methode für die Suche von Pokemons
-            const eingabe = searchbar.value.toLowerCase().trim(); // eingabe vom nutzer
+        function searchforpokemon() { // unsere Methode für die Suche von Pokemons
+            const eingabe = searchbar.value.toLowerCase().trim(); // Eingabe vom Nutzer
             if (eingabe === "") {
-                searchresponse.textContent = "Bitte Namen eingeben";// wenn nichts eingegebn wurde
+                searchresponse.textContent = "Bitte Namen eingeben"; // wenn nichts eingegeben wurde
                 searchimage.style.display = "none";
                 return;
             }
 
-            const allPokemon = document.querySelectorAll("#pokemon-list li"); //gibt mir alle Elemente aus der Liste zurück
+            const allPokemon = document.querySelectorAll("#pokemon-list li"); // gibt alle Karten aus der Liste zurück
             let treffer = null;
 
             for (let i of allPokemon) {
-                if (i.textContent.toLowerCase().includes(eingabe)) { // Wenn Treffer gefunden: Den Text des passenden Listeneintrags in der Variable speichern
+                if (i.querySelector(".name").textContent.toLowerCase().includes(eingabe)) { // nur im Namen suchen
                     treffer = i;
                     break;
                 }
             }
 
-            //Ergebnis der Suche anzeigen
+            // Ergebnis der Suche anzeigen
             if (treffer != null) {
-                const name = treffer.firstChild.textContent;
+                const name = treffer.querySelector(".name").textContent; // den Namen aus der Karte holen
                 const image_in_card = treffer.querySelector("img");
                 searchresponse.textContent = name;
 
@@ -96,17 +156,43 @@
         }
 
         searchbtn.addEventListener("click", searchforpokemon);
-        // 2. Suche auslösen, wenn im Textfeld "Enter" gedrückt wird
+        // Suche auslösen, wenn im Textfeld "Enter" gedrückt wird
         searchbar.addEventListener("keydown", (event) => {
             if (event.key === "Enter") {
                 searchforpokemon();
             }
         });
 
+        // Favoriten-Ansicht: nur Karten anzeigen, deren Nummer in der Favoriten-Liste steht
+        function zeigeFavoriten() {
+            const allPokemon = document.querySelectorAll("#pokemon-list li");
+            for (let li of allPokemon) {
+                // dataset.id ist Text, deshalb mit Number() in eine Zahl umwandeln
+                if (favoriten.includes(Number(li.dataset.id))) {
+                    li.style.display = "";      // Karte anzeigen
+                } else {
+                    li.style.display = "none";  // Karte verstecken
+                }
+            }
+
+            // Hinweis, falls noch keine Favoriten markiert sind
+            if (favoriten.length === 0) {
+                searchresponse.textContent = "Du hast noch keine Favoriten. Klick auf den Stern bei einem Pokémon.";
+            } else {
+                searchresponse.textContent = "";
+            }
+
+            // im Menü "Favoriten" als aktive Seite markieren
+            document.querySelector("#topmenu .active").classList.remove("active");
+            document.getElementById("favlink").classList.add("active");
+        }
+
+        // beim Klick auf "Favoriten" im Menü die Favoriten-Ansicht zeigen
+        document.getElementById("favlink").addEventListener("click", zeigeFavoriten);
+
+        // beim Laden der Seite die Pokemon aus der Datenbank holen und anzeigen
         getdatafromdb();
     </script>
-    <main>
-    </main>
 </body>
 
 </html>
