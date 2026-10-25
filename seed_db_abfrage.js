@@ -13,12 +13,6 @@ const app = express() // erstellt den Server und speichert ihn in "app"
 const path = require('path'); // Hilfswerkzeug, um Ordnerpfade richtig zu finden 
 app.use(express.static(path.join(__dirname, 'public'))); // macht die Webseite im Ordner "public" im Browser abrufbar
 
-app.get('/api/pokemon', function(request, response){ //wird ausgeführt, wenn jemand /api/pokemon aufruft
-    const statement = pokedexdb.prepare('SELECT * FROM pokemon'); // bereitet die SQL-Abfrage vor: alle Einträge aus der Tabelle "pokemon"
-    const allpokemons = statement.all(); // führt die Abfrage aus und speichert alle Pokémon als Liste
-    response.json(allpokemons); // schickt die Liste als JSON an den Browser zurück
-
-})
 
 //Schnittstelle für Detailseiten
 app.get('/api/pokemon/:id', (req, res) => {
@@ -37,7 +31,7 @@ app.get('/api/pokemon/:id', (req, res) => {
 //Schnittstelle für Filter mit QUERY Params
 app.get('/api/pokemon', (req, res) => {
     console.log("Empfangene Query-Parameter:", req.query);
-    const { type, search, minHeight, maxHeight, minWeight, maxWeight } = req.query; // Alle möglichen Query-Parameter auslesen
+    const { type, minHeight, maxHeight, minWeight, maxWeight } = req.query; // Alle möglichen Query-Parameter auslesen
     let query = 'SELECT DISTINCT pokemon.* FROM pokemon JOIN pokemon_types ON pokemon.id = pokemon_types.pokemon_id JOIN types ON pokemon_types.type_id = types.id WHERE 1=1'; //where 1=1, damit man später AND... einfacher hinzufügegt werden kann
     const params = [];
     //Filter nach Typ
