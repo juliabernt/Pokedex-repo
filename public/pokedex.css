@@ -1,64 +1,273 @@
-#pokemon-list {
-    list-style: none;
-    display: grid; /* Einträge in einem Raster anordnen */
-    grid-template-columns: repeat(3, 1fr); /* 3 Spalten, alle gleich breit */
-    gap: 1.25rem; /* 20 Pixel Abstand zwischen den Karten */
-}
-#pokemon-list li {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* leichter Schatten unter der Karte */
-    padding: 0.625rem;   /* 10 Pixel Innenabstand */
-}
-    
-#pokemon-list img {
-    width: 9.375rem;/* Bild ist 150 Pixel breit */ 
+/* ===== Ganze Seite ===== */
+body {
+    margin: 0;                                        /* kein weißer Rand um die Seite */
+    font-family: "Helvetica Neue", Arial, sans-serif; /* eine moderne Schrift für alles */
+    background-color: #f4f5f7;                        /* helles Grau, damit die weißen Karten auffallen */
+    color: #1f2d4d;                                   /* dunkelblaue Standard-Schrift */
 }
 
+/* ===== Header: Überschrift links, Menü rechts ===== */
+header {
+    display: flex;                  /* Überschrift und Menü nebeneinander */
+    justify-content: space-between; /* Überschrift links, Menü rechts */
+    align-items: center;            /* beides vertikal mittig */
+    padding: 1rem 2rem;             /* Innenabstand */
+    background-color: #2a75bb;      /* dunkles Blau */
+    border-bottom: 0.3rem solid #ffcb05;
+}
+
+/* die Überschrift "POKEMON" */
+h1 {
+    margin: 0;                   /* Standard-Abstand entfernen */
+    font-size: 2rem;
+    color: #ffcb05;              /* Pokemon-Gelb */
+    letter-spacing: 0.25rem;     /* Abstand zwischen den Buchstaben */
+    text-transform: uppercase;   /* alles in Großbuchstaben */
+        -webkit-text-stroke: 0.08rem #1c4f8c;   /* NEU: dunkelblauer Rand um die Buchstaben */
+    text-shadow: 0.15rem 0.15rem 0 #1c4f8c; /* NEU: leichter Schatten wie beim Logo */
+}
+
+/* ===== Menüleiste ===== */
+#topmenu {
+    display: flex;   /* Menüpunkte nebeneinander */
+    gap: 1.5rem;     /* Abstand zwischen den Punkten */
+}
+
+/* die einzelnen Menüpunkte */
+#topmenu a {
+    color: white;                          /* weiße Schrift */
+    text-decoration: none;                 /* Unterstreichung entfernen */
+    font-size: 1.05rem;
+    padding: 0.375rem 0;
+    border-bottom: 2px solid transparent;  /* unsichtbarer Strich, wird bei hover/aktiv gelb */
+    white-space: nowrap;                   /* Text bleibt in einer Zeile */
+    transition: 0.2s;
+}
+
+/* Icons auf Texthöhe */
+#topmenu a i {
+    font-size: 1.2rem;
+    vertical-align: -2px;
+    margin-right: 0.25rem;
+}
+
+/* Maus über einem Menüpunkt und aktuelle Seite: gelb mit gelbem Strich */
+#topmenu a:hover,
+#topmenu a.active {
+    color: #ffcb05;
+    border-bottom-color: #ffcb05;
+}
+
+/* ===== Seitenaufbau ===== */
+#layout-container {
+    display: flex;   /* Seitenleiste und Inhalt nebeneinander */
+}
+
+/* Seitenleiste links */
+#sidemenu {
+    width: 12.5rem;
+    background-color: white;
+    border-right: 1px solid #e2e5ea;   /* feiner Trennstrich */
+    padding: 1rem;
+}
+
+#sidemenu ul {
+    list-style: none;   /* Aufzählungspunkte entfernen */
+    padding: 0;
+    margin: 0;
+}
+
+#sidemenu a {
+    display: block;            /* ganze Zeile klickbar */
+    padding: 0.5rem 0;
+    color: #5b6475;            /* graue Schrift */
+    text-decoration: none;     /* Unterstreichung entfernen */
+}
+
+#sidemenu a:hover {
+    color: #1f2d4d;            /* dunkler beim Drüberfahren */
+}
+
+/* Hauptinhalt rechts */
+main {
+    flex-grow: 1;      /* nimmt den restlichen Platz ein */
+    padding: 1.5rem;   /* Abstand rundherum */
+}
+
+/* ===== Suche ===== */
+#searchbar-cont {
+    display: flex;
+    justify-content: center;   /* Suchfeld und Button in die Mitte */
+    margin-bottom: 1rem;
+}
+
+/* das Suchfeld: blau umrandet und eckig */
+#searchbar {
+    width: 60%;
+    max-width: 37.5rem;
+    font-size: 1.1rem;
+    padding: 0.75rem 1rem;
+    border: 2px solid #2a75bb;   /* blauer Rand */
+    border-radius: 0;            /* eckig */
+    outline: none;               /* kein extra Rahmen beim Reinklicken */
+}
+
+/* der Suchen-Button: blau und eckig */
+#searchbtn {
+    font-size: 1.1rem;
+    padding: 0.75rem 1.5rem;
+    background-color: #2a75bb;
+    color: white;
+    border: 2px solid #2a75bb;
+    border-radius: 0;            /* eckig */
+    cursor: pointer;
+}
+
+#searchbtn:hover {
+    background-color: #1c4f8c;
+    border-color: #1c4f8c
+}
+
+/* Bereich unter der Suche */
 #search-response-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 1.25rem auto; /*vorher 150px*/
+    margin-bottom: 1rem;
     text-align: center;
-    background-color: rgb(222, 215, 137);
 }
 
-
-
-h1 {
-    text-align: center;
-    font-size: 3rem;
-    color: #ffcb05;              /* Pokemon-Gelb */
-    -webkit-text-stroke: 0.125rem #3466af;  /* blauer Rand um die Buchstaben */
-    letter-spacing: 0.25rem;         /* Abstand zwischen den Buchstaben */
-    text-transform: uppercase;   /* alles in Großbuchstaben */
+/* Antworttext: schlicht, ohne Kasten */
+#searchresponse {
+    margin: 0;
+    font-size: 1.1rem;
 }
 
-#layout-container {
-    display: flex; 
-    gap: 1.25rem; /* Abstand zwischen Navi und Inhalt */
-    max-width: 75rem;
-    margin: 0 auto; /* Zentriert die Webseite auf großen Bildschirmen */
+/* leerer Antworttext wird ausgeblendet */
+#searchresponse:empty {
+    display: none;
 }
 
-#sidemenu {
-    width: 12.5rem;
-    background-color: rgb(149, 227, 227);
-    padding: 1rem;
-    /*border-radius: 0.5rem;*/
+/* ===== Pokemon-Karten ===== */
+#pokemon-list {
+    list-style: none;                      /* Aufzählungspunkte entfernen */
+    padding: 0;
+    display: grid;                         /* Raster */
+    grid-template-columns: repeat(3, 1fr); /* 3 Karten pro Reihe */
+    gap: 1.25rem;                          /* Abstand zwischen den Karten */
 }
 
-main {
-    flex-grow: 1; /* Der Hauptinhalt nimmt den restlichen verfügbaren Platz ein */
+/* eine Karte */
+#pokemon-list li {
+    position: relative;            /* damit der Stern oben rechts sitzen kann */
+    background-color: white;
+    border: 1px solid #e2e5ea;     /* feiner grauer Rand */
+    border-radius: 0.5rem;         /* leicht abgerundet */
+    padding: 0.75rem;
 }
-header {
+
+/* das Bild: zentriert auf grauem Feld */
+#pokemon-list img {
+    display: block;
+    width: 100%;                   /* so breit wie die Karte */
+    height: 11rem;                 /* feste Höhe, damit alle Karten gleich aussehen */
+    object-fit: contain;           /* Bild passt rein, ohne verzerrt zu werden */
+    background-color: #eef0f4;     /* hellgraues Feld hinter dem Bild */
+    border-radius: 0.375rem;
+}
+
+/* die Nummer, z.B. "Nr. 0001" */
+.nr {
+    margin: 0.75rem 0 0;           /* Abstand nach oben zum Bild */
+    font-size: 0.85rem;
+    color: #8a92a3;                /* grau */
+}
+
+/* gewicht und größe unter dem namen, klein und grau wie die nummer */
+.gewicht,
+.groesse {
+    margin: 0.25rem 0 0;
+    font-size: 0.85rem;
+    color: #8a92a3;
+}
+
+/* der Name */
+.name {
+    margin: 0.125rem 0 0;
+    font-size: 1.25rem;
+    font-weight: bold;
+    text-transform: capitalize;    /* erster Buchstabe groß: bulbasaur -> Bulbasaur */
+}
+
+/* typ-auswahl über die volle breite der seitenleiste */
+#typ {
     width: 100%;
-    display: flex;
-    /*justify-content: center;*/
-    background-color: #e4d082;
 }
 
-#searchbar-cont {
+/* Stern-Button oben rechts in der Karte */
+.stern {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #1f2d4d;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.stern:hover {
+    transform: scale(1.2);   /* beim Drüberfahren etwas größer */
+}
+
+#sidemenu select,
+#sidemenu input,
+#sidemenu button {
+    display: block;
     width: 100%;
-    display: flex;
-    
+    margin-bottom: 0.5rem;
+    padding: 0.4rem;
+    border: 1px solid #2a75bb;
+}
+
+#sidemenu button {
+    background-color: #2a75bb;
+    color: white;
+    cursor: pointer;
+}
+
+/* beschriftung über den feldern ("gewicht (kg)", "größe (cm)") */
+#sidemenu label {
+    display: block;          /* eigene zeile */
+    font-size: 0.9rem;       /* etwas kleiner als normaler text */
+    color: #5b6475;          /* grau */
+    margin: 0.75rem 0 0.25rem; /* abstand oben und unten */
+}
+
+/* von-feld, das wort "bis" und bis-feld in einer reihe */
+.von-bis {
+    display: flex;           /* nebeneinander statt untereinander */
+    align-items: center;     /* "bis" vertikal mittig zu den feldern */
+    gap: 0.4rem;             /* kleiner abstand dazwischen */
+    font-size: 0.9rem;
+    color: #5b6475;
+}
+
+/* die beiden zahlenfelder gleich breit machen */
+.von-bis input {
+    width: 0;                /* startbreite 0 ... */
+    flex: 1;                 /* ... dann teilen sich beide den platz gleichmäßig */
+    margin-bottom: 0;
+}
+
+/* abstand über dem filtern-button */
+#filterbtn {
+    margin-top: 1rem;
+}
+
+/* zurücksetzen-button weiß mit blauer schrift, damit er weniger auffällt als "filtern" */
+#resetbtn {
+    background-color: white;
+    color: #2a75bb;
 }

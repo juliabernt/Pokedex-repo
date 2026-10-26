@@ -6,28 +6,80 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pokedex</title>
     <link rel="stylesheet" href="pokedex.css">
+    <!-- Icon-Sammlung "Tabler Icons" (dünne Umriss-Icons) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 </head>
 
 <body>
     <header>
-        <h1>Pokemon</h1> <!-- Überschrift der Seite -->
-    </header>
+        <h1><i class="ti ti-pokeball"></i> Pokemon</h1> <!-- Überschrift der Seite mit Pokéball-Icon -->
 
-    <div id="layout-container">
+        <!-- Menüleiste oben rechts im Header -->
+        <nav id="topmenu">
+            <a class="active" href="pokedex.html"><i class="ti ti-home"></i> Pokedex</a>
+            <a href="#" id="favlink"><i class="ti ti-star"></i> Favoriten</a>
+            <a href="#"><i class="ti ti-scale"></i> Vergleichen</a>
+            <a href="#"><i class="ti ti-users"></i> Über uns</a>
+        </nav>
+    </header>
+          <div id="layout-container">
+        <!-- seitenleiste links mit den filtern -->
         <nav id="sidemenu">
-            <ul>
-                <li><a href="#">Pokedex</a></li>
-                <li><a href="#">Typen</a></li>
-            </ul>
+            <h3>Filter</h3>
+
+            <!-- gewicht: zwei zahlenfelder für die untere und obere grenze -->
+            <label>Gewicht (kg)</label>
+            <div class="von-bis">
+                <input type="number" id="gewicht-von" placeholder="von"> <!-- untere grenze -->
+                <span>bis</span>
+                <input type="number" id="gewicht-bis" placeholder="bis"> <!-- obere grenze -->
+            </div>
+
+            <!-- größe: genauso aufgebaut wie gewicht -->
+            <label>Größe (cm)</label>
+            <div class="von-bis">
+                <input type="number" id="groesse-von" placeholder="von">
+                <span>bis</span>
+                <input type="number" id="groesse-bis" placeholder="bis">
+            </div>
+        
+                        <!-- typ: auswahlliste, der wert (value) ist der englische name, so wie er in der datenbank steht -->
+            <label>Typ</label>
+            <select id="typ">
+                <option value="">alle Typen</option>
+                <option value="normal">Normal</option>
+                <option value="fire">Feuer</option>
+                <option value="water">Wasser</option>
+                <option value="grass">Pflanze</option>
+                <option value="electric">Elektro</option>
+                <option value="ice">Eis</option>
+                <option value="fighting">Kampf</option>
+                <option value="poison">Gift</option>
+                <option value="ground">Boden</option>
+                <option value="flying">Flug</option>
+                <option value="psychic">Psycho</option>
+                <option value="bug">Käfer</option>
+                <option value="rock">Gestein</option>
+                <option value="ghost">Geist</option>
+                <option value="dragon">Drache</option>
+                <option value="dark">Unlicht</option>
+                <option value="steel">Stahl</option>
+                <option value="fairy">Fee</option>
+            </select>
+
+
+            <!-- buttons zum filtern und zum zurücksetzen -->
+            <button type="button" id="filterbtn">Filtern</button>
+            <button type="button" id="resetbtn">Zurücksetzen</button>
         </nav>
         <main>
             <div id="searchbar-cont">
                 <input type="text" id="searchbar" placeholder="Pokémon suchen..."> <!-- Suchfeld -->
                 <button type="button" id="searchbtn">Suchen</button>
             </div>
-            
+
             <div id="search-response-container">
-                <p id="searchresponse">Gib einen Namen ein und klicke auf Suchen</p>
+                <p id="searchresponse"></p>
                 <img id="searchimage" src="" alt="" style="display: none; width: 150px;">
             </div>
             <ul id="pokemon-list"></ul>
@@ -40,46 +92,193 @@
 
 
     <script>
+        // Favoriten aus dem Browser-Speicher laden
+        // localStorage kann nur Text speichern, deshalb wandelt JSON.parse den Text wieder in eine Liste um
+        // gibt es noch keine Favoriten, starten wir mit einer leeren Liste []
+        let favoriten = JSON.parse(localStorage.getItem("favoriten")) || [];
+        
+// prüft ob eine zahl zwischen "von" und "bis" liegt
+// gibt true zurück wenn sie passt, sonst false
+// ist ein feld leer, wird diese grenze einfach ignoriert
+function imBereich(zahl, von, bis) {
+    // wenn eine untere grenze eingegeben wurde und die zahl kleiner ist -> passt nicht
+    if (von !== "" && zahl < Number(von)) {
+        return false;
+    }
+    // wenn eine obere grenze eingegeben wurde und die zahl größer ist -> passt nicht
+    if (bis !== "" && zahl > Number(bis)) {
+        return false;
+    }
+    // sonst liegt die zahl im bereich -> passt
+    return true;
+}
+
+// wird beim klick auf "filtern" ausgeführt
+// "async", weil wir für den typ beim server nachfragen und auf die antwort warten müssen
+async function filtern() {
+    // die eingaben aus den feldern holen
+    const gewichtVon = document.getElementById("gewicht-von").value;
+    const gewichtBis = document.getElementById("gewicht-bis").value;
+    const groesseVon = document.getElementById("groesse-von").value;
+    const groesseBis = document.getElementById("groesse-bis").value;
+    const typ = document.getElementById("typ").value;
+
+    // wenn ein typ ausgewählt ist: beim server nachfragen, welche pokemon diesen typ haben
+    // erlaubteIds bleibt null, wenn kein typ ausgewählt ist (dann passt jeder typ)
+    let erlaubteIds = null;
+    if (typ !== "") {
+        const response = await fetch("/api/pokemon?type=" + typ); // z.b. /api/pokemon?type=fire
+        const daten = await response.json();
+
+        // nur die nummern der passenden pokemon in einer liste sammeln
+        erlaubteIds = [];
+        for (let pokemon of daten) {
+            erlaubteIds.push(pokemon.id);
+        }
+    }
+
+    // alle pokemon-karten holen und einzeln prüfen
+    const allPokemon = document.querySelectorAll("#pokemon-list li");
+    for (let li of allPokemon) {
+        const gewicht = Number(li.dataset.gewicht);
+        const groesse = Number(li.dataset.groesse);
+        const id = Number(li.dataset.id);
+
+        // typ passt, wenn kein typ ausgewählt ist ODER die nummer in der erlaubten liste steht
+        const passtTyp = erlaubteIds === null || erlaubteIds.includes(id);
+
+        // nur anzeigen wenn gewicht UND größe UND typ passen
+        if (imBereich(gewicht, gewichtVon, gewichtBis) && imBereich(groesse, groesseVon, groesseBis) && passtTyp) {
+            li.style.display = "";      // karte anzeigen
+        } else {
+            li.style.display = "none";  // karte verstecken
+        }
+    }
+}
+
+// wird beim klick auf "zurücksetzen" ausgeführt
+function filterZuruecksetzen() {
+    // alle vier felder leeren
+    document.getElementById("gewicht-von").value = "";
+    document.getElementById("gewicht-bis").value = "";
+    document.getElementById("groesse-von").value = "";
+    document.getElementById("groesse-bis").value = "";
+
+    // alle karten wieder anzeigen
+    const allPokemon = document.querySelectorAll("#pokemon-list li");
+    for (let li of allPokemon) {
+        li.style.display = "";
+    }
+}
+
+// die buttons mit den funktionen verbinden
+document.getElementById("filterbtn").addEventListener("click", filtern);
+document.getElementById("resetbtn").addEventListener("click", filterZuruecksetzen);
+document.getElementById("typ").value = "";   // typ wieder auf "alle typen"
+
+
+
         async function getdatafromdb() {
-            const response = await fetch('/api/pokemon'); //Server nach Daten fragen 
+            const response = await fetch('/api/pokemon'); // Server nach Daten fragen
             const pokedata = await response.json(); // Antwort in JS-Objekte umwandeln
             const list = document.getElementById("pokemon-list"); // die leere Liste holen
 
-            for (let pokemon of pokedata) { // für jedes Pokemon
-                const listelement = document.createElement("li"); // einen neuen Listeneintrag erstellen (das wird unsere Karte)
-                const imageelement = document.createElement("img");    // // ein neues Bild-Element erstellen (noch leer, ohne Quelle)
-                imageelement.src = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/" + pokemon.id + ".png"; //// Bild-URL zusammensetzen: fester Link zum Bilder-Ordner + Pokemon-Nummer + Dateiendung
-                listelement.textContent = pokemon.name; // Name als Text
-                listelement.appendChild(imageelement); // beides in die Liste hängen
+            for (let pokemon of pokedata) { // für jedes Pokemon aus der Datenbank
+                // neue Karte erstellen und die Nummer des Pokemons daran merken
+                const listelement = document.createElement("li");
+                listelement.dataset.id = pokemon.id;
+                listelement.dataset.gewicht = pokemon.weight / 10; // in kg umrechnen
+                listelement.dataset.groesse = pokemon.height * 10; // in cm umrechnen
+                
+
+                // Bild: URL aus festem Link + Pokemon-Nummer + .png zusammensetzen
+                const imageelement = document.createElement("img");
+                imageelement.src = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/" + pokemon.id + ".png";
+
+                // Nummer: padStart füllt vorne mit Nullen auf 4 Stellen auf (1 wird zu 0001)
+                const nrelement = document.createElement("p");
+                nrelement.className = "nr";
+                nrelement.textContent = "Nr. " + String(pokemon.id).padStart(4, "0");
+
+                // Name
+                const nameelement = document.createElement("p");
+                nameelement.className = "name";
+                nameelement.textContent = pokemon.name;
+
+                // Gewicht
+                const gewichtelement = document.createElement("p");
+                gewichtelement.className = "gewicht";
+                gewichtelement.textContent = pokemon.weight / 10 + " kg";   // in kg umrechnen und einheit dahinter
+
+                //Größe 
+
+                const groesseelement = document.createElement("p");
+                groesseelement.className = "groesse";
+                groesseelement.textContent = pokemon.height * 10 + " cm";   // in cm umrechnen und einheit dahinter
+
+                // Bild, Nummer und Name untereinander in die Karte legen
+                listelement.appendChild(imageelement);
+                listelement.appendChild(nrelement);
+                listelement.appendChild(nameelement);
+                listelement.appendChild(gewichtelement);
+                listelement.appendChild(groesseelement);
+
+                // Stern-Button erstellen
+                const starbutton = document.createElement("button");
+                starbutton.className = "stern";
+
+                // schon Favorit? dann voller Stern, sonst leerer Stern
+                if (favoriten.includes(pokemon.id)) {
+                    starbutton.textContent = "★";
+                } else {
+                    starbutton.textContent = "☆";
+                }
+
+                // was beim Klick auf den Stern passiert
+                starbutton.addEventListener("click", function () {
+                    if (favoriten.includes(pokemon.id)) {
+                        const position = favoriten.indexOf(pokemon.id); // an welcher Stelle steht es?
+                        favoriten.splice(position, 1);                  // dort 1 Eintrag löschen
+                        starbutton.textContent = "☆";
+                    } else {
+                        favoriten.push(pokemon.id);                     // zur Liste hinzufügen
+                        starbutton.textContent = "★";
+                    }
+                    localStorage.setItem("favoriten", JSON.stringify(favoriten)); // im Browser speichern
+                });
+
+                // Stern in die Karte, Karte in die Liste
+                listelement.appendChild(starbutton);
                 list.appendChild(listelement);
             }
         }
-        const searchbar = document.getElementById("searchbar"); // die drei Zeilen verbinden java script mit html elementen
+
+        const searchbar = document.getElementById("searchbar"); // die drei Zeilen verbinden JavaScript mit HTML-Elementen
         const searchbtn = document.getElementById("searchbtn");
         const searchresponse = document.getElementById("searchresponse");
         const searchimage = document.getElementById("searchimage");
 
-        function searchforpokemon() { //unsere Methode für die Suche von Pokemons
-            const eingabe = searchbar.value.toLowerCase().trim(); // eingabe vom nutzer
+        function searchforpokemon() { // unsere Methode für die Suche von Pokemons
+            const eingabe = searchbar.value.toLowerCase().trim(); // Eingabe vom Nutzer
             if (eingabe === "") {
-                searchresponse.textContent = "Bitte Namen eingeben";// wenn nichts eingegebn wurde
+                searchresponse.textContent = "Bitte Namen eingeben"; // wenn nichts eingegeben wurde
                 searchimage.style.display = "none";
                 return;
             }
 
-            const allPokemon = document.querySelectorAll("#pokemon-list li"); //gibt mir alle Elemente aus der Liste zurück
+            const allPokemon = document.querySelectorAll("#pokemon-list li"); // gibt alle Karten aus der Liste zurück
             let treffer = null;
 
             for (let i of allPokemon) {
-                if (i.textContent.toLowerCase().includes(eingabe)) { // Wenn Treffer gefunden: Den Text des passenden Listeneintrags in der Variable speichern
+                if (i.querySelector(".name").textContent.toLowerCase().includes(eingabe)) { // nur im Namen suchen
                     treffer = i;
                     break;
                 }
             }
 
-            //Ergebnis der Suche anzeigen
+            // Ergebnis der Suche anzeigen
             if (treffer != null) {
-                const name = treffer.firstChild.textContent;
+                const name = treffer.querySelector(".name").textContent; // den Namen aus der Karte holen
                 const image_in_card = treffer.querySelector("img");
                 searchresponse.textContent = name;
 
@@ -96,17 +295,43 @@
         }
 
         searchbtn.addEventListener("click", searchforpokemon);
-        // 2. Suche auslösen, wenn im Textfeld "Enter" gedrückt wird
+        // Suche auslösen, wenn im Textfeld "Enter" gedrückt wird
         searchbar.addEventListener("keydown", (event) => {
             if (event.key === "Enter") {
                 searchforpokemon();
             }
         });
 
+        // Favoriten-Ansicht: nur Karten anzeigen, deren Nummer in der Favoriten-Liste steht
+        function zeigeFavoriten() {
+            const allPokemon = document.querySelectorAll("#pokemon-list li");
+            for (let li of allPokemon) {
+                // dataset.id ist Text, deshalb mit Number() in eine Zahl umwandeln
+                if (favoriten.includes(Number(li.dataset.id))) {
+                    li.style.display = "";      // Karte anzeigen
+                } else {
+                    li.style.display = "none";  // Karte verstecken
+                }
+            }
+
+            // Hinweis, falls noch keine Favoriten markiert sind
+            if (favoriten.length === 0) {
+                searchresponse.textContent = "Du hast noch keine Favoriten. Klick auf den Stern bei einem Pokémon.";
+            } else {
+                searchresponse.textContent = "";
+            }
+
+            // im Menü "Favoriten" als aktive Seite markieren
+            document.querySelector("#topmenu .active").classList.remove("active");
+            document.getElementById("favlink").classList.add("active");
+        }
+
+        // beim Klick auf "Favoriten" im Menü die Favoriten-Ansicht zeigen
+        document.getElementById("favlink").addEventListener("click", zeigeFavoriten);
+
+        // beim Laden der Seite die Pokemon aus der Datenbank holen und anzeigen
         getdatafromdb();
     </script>
-    <main>
-    </main>
 </body>
 
 </html>
