@@ -22,13 +22,30 @@
             <a href="#"><i class="ti ti-users"></i> Über uns</a>
         </nav>
     </header>
-
-    <div id="layout-container">
+          <div id="layout-container">
+        <!-- seitenleiste links mit den filtern -->
         <nav id="sidemenu">
-            <ul>
-                <li><a href="#">Pokedex</a></li>
-                <li><a href="#">Typen</a></li>
-            </ul>
+            <h3>Filter</h3>
+
+            <!-- gewicht: zwei zahlenfelder für die untere und obere grenze -->
+            <label>Gewicht (kg)</label>
+            <div class="von-bis">
+                <input type="number" id="gewicht-von" placeholder="von"> <!-- untere grenze -->
+                <span>bis</span>
+                <input type="number" id="gewicht-bis" placeholder="bis"> <!-- obere grenze -->
+            </div>
+
+            <!-- größe: genauso aufgebaut wie gewicht -->
+            <label>Größe (cm)</label>
+            <div class="von-bis">
+                <input type="number" id="groesse-von" placeholder="von">
+                <span>bis</span>
+                <input type="number" id="groesse-bis" placeholder="bis">
+            </div>
+
+            <!-- buttons zum filtern und zum zurücksetzen -->
+            <button type="button" id="filterbtn">Filtern</button>
+            <button type="button" id="resetbtn">Zurücksetzen</button>
         </nav>
         <main>
             <div id="searchbar-cont">
@@ -54,6 +71,97 @@
         // localStorage kann nur Text speichern, deshalb wandelt JSON.parse den Text wieder in eine Liste um
         // gibt es noch keine Favoriten, starten wir mit einer leeren Liste []
         let favoriten = JSON.parse(localStorage.getItem("favoriten")) || [];
+        function filtern() {
+    const art = document.getElementById("filterart").value;
+    const vergleich = document.getElementById("vergleich").value;
+    const eingabe = document.getElementById("filterwert").value;
+    const allPokemon = document.querySelectorAll("#pokemon-list li");
+
+    for (let li of allPokemon) {
+        // gewicht oder größe von der karte holen
+        let zahl;
+        if (art === "gewicht") {
+            zahl = Number(li.dataset.gewicht);
+        } else {
+            zahl = Number(li.dataset.groesse);
+        }
+
+        // feld leer -> alle anzeigen
+        if (eingabe === "") {
+            li.style.display = "";
+        } else if (vergleich === "kleiner" && zahl < Number(eingabe)) {
+            li.style.display = "";
+        } else if (vergleich === "groesser" && zahl > Number(eingabe)) {
+            li.style.display = "";
+        } else {
+            li.style.display = "none";
+        }
+    }
+}
+
+document.getElementById("filterbtn").addEventListener("click", filtern);
+// prüft ob eine zahl zwischen "von" und "bis" liegt
+// gibt true zurück wenn sie passt, sonst false
+// ist ein feld leer, wird diese grenze einfach ignoriert
+function imBereich(zahl, von, bis) {
+    // wenn eine untere grenze eingegeben wurde und die zahl kleiner ist -> passt nicht
+    if (von !== "" && zahl < Number(von)) {
+        return false;
+    }
+    // wenn eine obere grenze eingegeben wurde und die zahl größer ist -> passt nicht
+    if (bis !== "" && zahl > Number(bis)) {
+        return false;
+    }
+    // sonst liegt die zahl im bereich -> passt
+    return true;
+}
+
+// wird beim klick auf "filtern" ausgeführt
+function filtern() {
+    // die eingaben aus den vier feldern holen (sind text, z.b. "10" oder "")
+    const gewichtVon = document.getElementById("gewicht-von").value;
+    const gewichtBis = document.getElementById("gewicht-bis").value;
+    const groesseVon = document.getElementById("groesse-von").value;
+    const groesseBis = document.getElementById("groesse-bis").value;
+
+    // alle pokemon-karten holen
+    const allPokemon = document.querySelectorAll("#pokemon-list li");
+
+    // jede karte einzeln prüfen
+    for (let li of allPokemon) {
+        // gewicht und größe von der karte holen und in zahlen umwandeln
+        const gewicht = Number(li.dataset.gewicht);
+        const groesse = Number(li.dataset.groesse);
+
+        // && heißt "und": die karte wird nur angezeigt, wenn gewicht UND größe passen
+        if (imBereich(gewicht, gewichtVon, gewichtBis) && imBereich(groesse, groesseVon, groesseBis)) {
+            li.style.display = "";      // karte anzeigen
+        } else {
+            li.style.display = "none";  // karte verstecken
+        }
+    }
+}
+
+// wird beim klick auf "zurücksetzen" ausgeführt
+function filterZuruecksetzen() {
+    // alle vier felder leeren
+    document.getElementById("gewicht-von").value = "";
+    document.getElementById("gewicht-bis").value = "";
+    document.getElementById("groesse-von").value = "";
+    document.getElementById("groesse-bis").value = "";
+
+    // alle karten wieder anzeigen
+    const allPokemon = document.querySelectorAll("#pokemon-list li");
+    for (let li of allPokemon) {
+        li.style.display = "";
+    }
+}
+
+// die buttons mit den funktionen verbinden
+document.getElementById("filterbtn").addEventListener("click", filtern);
+document.getElementById("resetbtn").addEventListener("click", filterZuruecksetzen);
+
+
 
         async function getdatafromdb() {
             const response = await fetch('/api/pokemon'); // Server nach Daten fragen
@@ -64,6 +172,9 @@
                 // neue Karte erstellen und die Nummer des Pokemons daran merken
                 const listelement = document.createElement("li");
                 listelement.dataset.id = pokemon.id;
+                listelement.dataset.gewicht = pokemon.weight / 10; // in kg umrechnen
+                listelement.dataset.groesse = pokemon.height * 10; // in cm umrechnen
+                
 
                 // Bild: URL aus festem Link + Pokemon-Nummer + .png zusammensetzen
                 const imageelement = document.createElement("img");
@@ -79,10 +190,23 @@
                 nameelement.className = "name";
                 nameelement.textContent = pokemon.name;
 
+                // Gewicht
+                const gewichtelement = document.createElement("p");
+                gewichtelement.className = "gewicht";
+                gewichtelement.textContent = pokemon.weight / 10 + " kg";   // in kg umrechnen und einheit dahinter
+
+                //Größe 
+
+                const groesseelement = document.createElement("p");
+                groesseelement.className = "groesse";
+                groesseelement.textContent = pokemon.height * 10 + " cm";   // in cm umrechnen und einheit dahinter
+
                 // Bild, Nummer und Name untereinander in die Karte legen
                 listelement.appendChild(imageelement);
                 listelement.appendChild(nrelement);
                 listelement.appendChild(nameelement);
+                listelement.appendChild(gewichtelement);
+                listelement.appendChild(groesseelement);
 
                 // Stern-Button erstellen
                 const starbutton = document.createElement("button");

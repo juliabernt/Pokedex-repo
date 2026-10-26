@@ -183,6 +183,14 @@ main {
     color: #8a92a3;                /* grau */
 }
 
+/* gewicht und größe unter dem namen, klein und grau wie die nummer */
+.gewicht,
+.groesse {
+    margin: 0.25rem 0 0;
+    font-size: 0.85rem;
+    color: #8a92a3;
+}
+
 /* der Name */
 .name {
     margin: 0.125rem 0 0;
@@ -206,4 +214,55 @@ main {
 
 .stern:hover {
     transform: scale(1.2);   /* beim Drüberfahren etwas größer */
+}
+
+#sidemenu select,
+#sidemenu input,
+#sidemenu button {
+    display: block;
+    width: 100%;
+    margin-bottom: 0.5rem;
+    padding: 0.4rem;
+    border: 1px solid #2a75bb;
+}
+
+#sidemenu button {
+    background-color: #2a75bb;
+    color: white;
+    cursor: pointer;
+}
+
+/* beschriftung über den feldern ("gewicht (kg)", "größe (cm)") */
+#sidemenu label {
+    display: block;          /* eigene zeile */
+    font-size: 0.9rem;       /* etwas kleiner als normaler text */
+    color: #5b6475;          /* grau */
+    margin: 0.75rem 0 0.25rem; /* abstand oben und unten */
+}
+
+/* von-feld, das wort "bis" und bis-feld in einer reihe */
+.von-bis {
+    display: flex;           /* nebeneinander statt untereinander */
+    align-items: center;     /* "bis" vertikal mittig zu den feldern */
+    gap: 0.4rem;             /* kleiner abstand dazwischen */
+    font-size: 0.9rem;
+    color: #5b6475;
+}
+
+/* die beiden zahlenfelder gleich breit machen */
+.von-bis input {
+    width: 0;                /* startbreite 0 ... */
+    flex: 1;                 /* ... dann teilen sich beide den platz gleichmäßig */
+    margin-bottom: 0;
+}
+
+/* abstand über dem filtern-button */
+#filterbtn {
+    margin-top: 1rem;
+}
+
+/* zurücksetzen-button weiß mit blauer schrift, damit er weniger auffällt als "filtern" */
+#resetbtn {
+    background-color: white;
+    color: #2a75bb;
 }
