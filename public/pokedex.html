@@ -42,6 +42,31 @@
                 <span>bis</span>
                 <input type="number" id="groesse-bis" placeholder="bis">
             </div>
+        
+                        <!-- typ: auswahlliste, der wert (value) ist der englische name, so wie er in der datenbank steht -->
+            <label>Typ</label>
+            <select id="typ">
+                <option value="">alle Typen</option>
+                <option value="normal">Normal</option>
+                <option value="fire">Feuer</option>
+                <option value="water">Wasser</option>
+                <option value="grass">Pflanze</option>
+                <option value="electric">Elektro</option>
+                <option value="ice">Eis</option>
+                <option value="fighting">Kampf</option>
+                <option value="poison">Gift</option>
+                <option value="ground">Boden</option>
+                <option value="flying">Flug</option>
+                <option value="psychic">Psycho</option>
+                <option value="bug">Käfer</option>
+                <option value="rock">Gestein</option>
+                <option value="ghost">Geist</option>
+                <option value="dragon">Drache</option>
+                <option value="dark">Unlicht</option>
+                <option value="steel">Stahl</option>
+                <option value="fairy">Fee</option>
+            </select>
+
 
             <!-- buttons zum filtern und zum zurücksetzen -->
             <button type="button" id="filterbtn">Filtern</button>
@@ -117,24 +142,41 @@ function imBereich(zahl, von, bis) {
 }
 
 // wird beim klick auf "filtern" ausgeführt
-function filtern() {
-    // die eingaben aus den vier feldern holen (sind text, z.b. "10" oder "")
+// "async", weil wir für den typ beim server nachfragen und auf die antwort warten müssen
+async function filtern() {
+    // die eingaben aus den feldern holen
     const gewichtVon = document.getElementById("gewicht-von").value;
     const gewichtBis = document.getElementById("gewicht-bis").value;
     const groesseVon = document.getElementById("groesse-von").value;
     const groesseBis = document.getElementById("groesse-bis").value;
+    const typ = document.getElementById("typ").value;
 
-    // alle pokemon-karten holen
+    // wenn ein typ ausgewählt ist: beim server nachfragen, welche pokemon diesen typ haben
+    // erlaubteIds bleibt null, wenn kein typ ausgewählt ist (dann passt jeder typ)
+    let erlaubteIds = null;
+    if (typ !== "") {
+        const response = await fetch("/api/pokemon?type=" + typ); // z.b. /api/pokemon?type=fire
+        const daten = await response.json();
+
+        // nur die nummern der passenden pokemon in einer liste sammeln
+        erlaubteIds = [];
+        for (let pokemon of daten) {
+            erlaubteIds.push(pokemon.id);
+        }
+    }
+
+    // alle pokemon-karten holen und einzeln prüfen
     const allPokemon = document.querySelectorAll("#pokemon-list li");
-
-    // jede karte einzeln prüfen
     for (let li of allPokemon) {
-        // gewicht und größe von der karte holen und in zahlen umwandeln
         const gewicht = Number(li.dataset.gewicht);
         const groesse = Number(li.dataset.groesse);
+        const id = Number(li.dataset.id);
 
-        // && heißt "und": die karte wird nur angezeigt, wenn gewicht UND größe passen
-        if (imBereich(gewicht, gewichtVon, gewichtBis) && imBereich(groesse, groesseVon, groesseBis)) {
+        // typ passt, wenn kein typ ausgewählt ist ODER die nummer in der erlaubten liste steht
+        const passtTyp = erlaubteIds === null || erlaubteIds.includes(id);
+
+        // nur anzeigen wenn gewicht UND größe UND typ passen
+        if (imBereich(gewicht, gewichtVon, gewichtBis) && imBereich(groesse, groesseVon, groesseBis) && passtTyp) {
             li.style.display = "";      // karte anzeigen
         } else {
             li.style.display = "none";  // karte verstecken
@@ -160,6 +202,7 @@ function filterZuruecksetzen() {
 // die buttons mit den funktionen verbinden
 document.getElementById("filterbtn").addEventListener("click", filtern);
 document.getElementById("resetbtn").addEventListener("click", filterZuruecksetzen);
+document.getElementById("typ").value = "";   // typ wieder auf "alle typen"
 
 
 

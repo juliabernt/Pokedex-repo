@@ -199,6 +199,11 @@ main {
     text-transform: capitalize;    /* erster Buchstabe groß: bulbasaur -> Bulbasaur */
 }
 
+/* typ-auswahl über die volle breite der seitenleiste */
+#typ {
+    width: 100%;
+}
+
 /* Stern-Button oben rechts in der Karte */
 .stern {
     position: absolute;
