@@ -32,15 +32,18 @@ app.get('/api/pokemon/:id', (req, res) => {
 app.get('/api/pokemon', (req, res) => {
     console.log("Empfangene Query-Parameter:", req.query);
     const { type, minHeight, maxHeight, minWeight, maxWeight } = req.query; // Alle möglichen Query-Parameter auslesen
-    let query = 'SELECT DISTINCT pokemon.* FROM pokemon JOIN pokemon_types ON pokemon.id = pokemon_types.pokemon_id JOIN types ON pokemon_types.type_id = types.id WHERE 1=1'; //where 1=1, damit man später AND... einfacher hinzufügegt werden kann
+    
+    let query = 'SELECT DISTINCT pokemon.* FROM pokemon ';
     const params = [];
+
     //Filter nach Typ
     if(type) {
-        query = query + ' AND types.name = ?';
+        query = query + ' JOIN pokemon_types ON pokemon.id = pokemon_types.pokemon_id JOIN types ON pokemon_types.type_id = types.id WHERE types.name = ?';
         params.push(type); //in den leeren array hinzufügen
+    } else {
+        query = query + 'WHERE 1=1';
     }
-    console.log("Generierter SQL-Befehl:", query);
-    console.log("Übergebene Parameter:", params);
+
     //Filter nach Mindestgröße
     if(minHeight) {
         query = query + ' AND pokemon.height >= ?';
@@ -70,7 +73,14 @@ app.get('/api/pokemon', (req, res) => {
 
 
     if(results.length > 0) {
-        res.json(results);
+        const resultsWithTypes = results.map(pokemon => {
+            const typestmt = pokedexdb.prepare('SELECT types.name FROM types JOIN pokemon_types ON types.id = pokemon_types.type_id WHERE pokemon_types.pokemon_id = ?');
+            const typesRes = typestmt.all(pokemon.id);
+            // Macht aus [{name: 'grass'}, {name: 'poison'}] ein einfaches Array: ['grass', 'poison']
+            pokemon.types = typesRes.map(t => t.name);
+            return pokemon;
+        })
+        res.json(resultsWithTypes);
     }
     else {
         res.status(404).json({ error: "Keine Pokémon gefunden, die diesen Kriterien entsprechen" });
