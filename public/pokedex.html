@@ -344,6 +344,15 @@ let gefundenesPokemon = null;
                 searchforpokemon();
             }
         });
+        // wird bei jeder Änderung im Suchfeld ausgeführt (tippen, löschen, einfügen)
+        searchbar.addEventListener("input", function () {
+            //ist das Feld jetzt leer, Sucherergebnis wieder entfernen
+            if (searchbar.value.trim() == "") {
+                searchresponse.textContent = "";        // Text löschen 
+                searchimage.style.display = "none";     // Bild verstecken
+                gefundenesPokemon = null;               // nichts mehr anklickbar
+            }
+        });
 
         // Favoriten-Ansicht: nur Karten anzeigen, deren Nummer in der Favoriten-Liste steht
         function zeigeFavoriten() {
