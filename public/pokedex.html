@@ -254,24 +254,25 @@ let gefundenesPokemon = null;
                 const typencontainer = document.createElement("div"); /* baut leeren container div und gibt im die klasse typen*/
                 typencontainer.className = "typen";
 
-                const typenliste = pokemon.types.split(","); /* der Server shcikt die typen als text deshalb wird hier der text da auseinader geschnitten wo komma steht und liste draus geamcht*/
+                // der server schickt die typen schon als liste, z.b. ["grass", "poison"]
+                // "|| []" heißt: falls es keine typen gibt, nimm eine leere liste
+                const typenliste = pokemon.types || [];
 
-
-
-
-
-
-
-
-
-
-
+                // für jeden typ ein farbiges schild bauen
+                for (let typ of typenliste) {
+                    const typname = textVon(typ);   // englischen namen holen, z.b. "grass" (funktion steht weiter unten)
+                    const typelement = document.createElement("span");
+                    typelement.className = "typ typ-" + typname;   // z.b. "typ typ-grass", bestimmt die farbe
+                    typelement.textContent = typnamen[typname];    // deutscher name, z.b. "Pflanze"
+                    typencontainer.appendChild(typelement);
+                } 
 
 
                 // Bild, Nummer und Name untereinander in die Karte legen
                 listelement.appendChild(imageelement);
                 listelement.appendChild(nrelement);
                 listelement.appendChild(nameelement);
+                listelement.appendChild(typencontainer);
                 listelement.appendChild(gewichtelement);
                 listelement.appendChild(groesseelement);
 

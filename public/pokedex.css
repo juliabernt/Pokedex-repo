@@ -381,3 +381,45 @@ main {
 #searchimage {
     cursor: pointer;
 }
+/* kasten mit den typ-schildern: nebeneinander mit abstand */
+.typen {
+    display: flex;      /* schilder nebeneinander */
+    gap: 0.375rem;      /* abstand zwischen den schildern */
+    margin: 0.5rem 0;   /* abstand nach oben und unten */
+}
+
+/* ein typ-schild: kleines farbiges kästchen */
+.typ {
+    padding: 0.2rem 0.75rem;   /* innenabstand, damit es wie ein kästchen aussieht */
+    border-radius: 0.25rem;    /* leicht runde ecken */
+    font-size: 0.8rem;
+    color: #1f2d4d;
+}
+
+/* farbe je typ (wie im offiziellen pokédex) */
+.typ-normal   { background-color: #a4acaf; }
+.typ-fire     { background-color: #fd7d24; }
+.typ-water    { background-color: #4592c4; }
+.typ-grass    { background-color: #9bcc50; }
+.typ-electric { background-color: #eed535; }
+.typ-ice      { background-color: #51c4e7; }
+.typ-fighting { background-color: #d56723; }
+.typ-poison   { background-color: #b97fc9; }
+.typ-ground   { background-color: #d4b26b; }
+.typ-flying   { background-color: #3dc7ef; }
+.typ-psychic  { background-color: #f366b9; }
+.typ-bug      { background-color: #729f3f; }
+.typ-rock     { background-color: #a38c21; }
+.typ-ghost    { background-color: #7b62a3; }
+.typ-dragon   { background-color: #53a4cf; }
+.typ-dark     { background-color: #707070; }
+.typ-steel    { background-color: #9eb7b8; }
+.typ-fairy    { background-color: #fdb9e9; }
+
+/* bei dunklen farben weiße schrift, damit man sie lesen kann */
+.typ-ghost,
+.typ-dark,
+.typ-fighting,
+.typ-bug {
+    color: white;
+}
