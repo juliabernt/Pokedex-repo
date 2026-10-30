@@ -14,6 +14,11 @@ header {
     padding: 1rem 2rem;             /* Innenabstand */
     background-color: #2a75bb;      /* dunkles Blau */
     border-bottom: 0.3rem solid #ffcb05;
+    position: sticky; /* das der header fest ist*/
+    top: 0; /* direkt am oberen Rand*/
+    z-index: 10; /* über den karten*/
+
+
 }
 
 /* die Überschrift "POKEMON" */
@@ -69,6 +74,10 @@ h1 {
     background-color: white;
     border-right: 1px solid #e2e5ea;   /* feiner Trennstrich */
     padding: 1rem;
+    position: sticky;
+    top: 6rem; /*das sie unter dem header stehen bleibt*/
+    align-self: flex-start;    /* macht die filter splate nur so lang wie ihr inhalt sonst wäre sie 1000 karten lang also kann sie nicht sticky sein*/
+    height: calc(100vh - 6rem);      /* so hoch wie das fenster minus header = eine bildschirmseite */
 }
 
 #sidemenu ul {
@@ -155,6 +164,7 @@ main {
     display: grid;                         /* Raster */
     grid-template-columns: repeat(3, 1fr); /* 3 Karten pro Reihe */
     gap: 1.25rem;                          /* Abstand zwischen den Karten */
+        min-height: 100vh;   /* platz für die karten von anfang an reservieren, damit nichts springt */
 }
 
 /* eine Karte */
