@@ -394,6 +394,7 @@ let gefundenesPokemon = null;
             if (x.name) return x.name;
             return "";
         }
+    
 
         // erstellt eine Zeile "Label. Wert"
         function infoZeile(label, wert) {
@@ -414,6 +415,33 @@ let gefundenesPokemon = null;
             return zeile;
         }
 
+        // erstellt eine Zeile mit Name, Zahl und Balken (für KP, Angriff usw.)
+        function statZeile(label, wert) {
+            const zeile = document.createElement("div");
+            zeile.className = "detail-row";
+
+            const labelelement = document.createElement("span");
+            labelelement.className = "detail-label";
+            labelelement.textContent = label;
+
+            const zahl = document.createElement("span");
+            zahl.className = "stat-zahl";
+            zahl.textContent = wert;
+
+            const bar = document.createElement("div");
+            bar.className = "stat-bar";
+            const fill = document.createElement("div");
+            fill.className = "stat-fill";
+            fill.style.width = Math.min(wert / 2, 100) + "%";   // 200 = voller Balken
+            bar.appendChild(fill);
+
+            zeile.append(labelelement, zahl, bar);
+            return zeile;
+        }
+
+
+
+
         // zeigt die Detailansicht für ein Pokemon an
         function zeigeDetail(pokemon) {
             console.log(pokemon); //zum Nachschauen, welche Felder die Datenbank liefert
@@ -431,50 +459,14 @@ let gefundenesPokemon = null;
             const info = document.getElementById("detail-info");
             info.innerHTML = ""; // alten Inhalt von vorherigem Pokemon löschen
 
-            info.appendChild(infoZeile("Height", pokemon.height * 10 + " cm"));
-            info.appendChild(infoZeile("Weight", pokemon.weight / 10 + " kg"));
+            info.appendChild(infoZeile("Größe", pokemon.height * 10 + " cm"));
+            info.appendChild(infoZeile("Gewicht", pokemon.weight / 10 + " kg"));
+            info.appendChild(infoZeile("Typ", pokemon.types.map(textVon).join(", ")));
+            info.appendChild(statZeile("KP", pokemon.hp));
+            info.appendChild(statZeile("Angriff", pokemon.attack));
+            info.appendChild(statZeile("Verteidigung", pokemon.defense));
+            info.appendChild(statZeile("Initiative", pokemon.speed));
 
-            //diese Felder nur anzeigen, wenn sie in der Datenbank vorhanden sind
-            if (pokemon.base_experience) {
-                info.appendChild(infoZeile("Base Experience", pokemon.base_experience));
-            }
-
-            if (Array.isArray(pokemon.types) && pokemon.types.length > 0) {
-                info.appendChild(infoZeile("Type", pokemon.types.map(textVon).join(", ")));
-            }
-
-            if (Array.isArray(pokemon.abilitys) && pokemon.abilities.length > 0) {
-                info.appendChild(infoZeile("Abilities", pokemon.abilities.map(textVon).join(", ")));
-            }
-
-            if(Array.isArray(pokemon.stats)) {
-                for(let s of ppkemon.stats) {
-                    const name = s.stat ? textVon(s.stat) : s.name;
-                    const wert = s.base_stat !== undefined ? s.base_stat : s.value;
-
-                    const zeile = document.createElement("div");
-                    zeile.className = "detail-row";
-
-                    const labelelement = document.createElement("span");
-                    labelelement.className = "detail-label";
-                    labelelement.textContent = name;
-
-                    const zahl = document.createElement("span");
-                    zahl.className = "stat-zahl";
-                    zahl.textContent = wert;
-
-                    const bar = document.createElement("div");
-                    bar.className = "stat-bar";
-                    const fill = document.createElement("div");
-                    fill.className = "stat-fill";
-                    fill.style.width = Math.min(wert / 2, 100) + "%"; //200 = voller Balken
-                    bar.appendChild(fill);
-
-                    zeile.append(labelelement, zahl, bar);
-                    info.appendChild(zeile);
-
-                }
-            }
 
             // 4. Liste verstecken, Detailansicht zeigen, anch oben springen
             document.getElementById("pokemon-list").style.display = "none";
