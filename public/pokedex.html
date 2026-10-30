@@ -83,6 +83,23 @@
                 <img id="searchimage" src="" alt="" style="display: none; width: 150px;">
             </div>
             <ul id="pokemon-list"></ul>
+
+            <!-- Detailansicht: am Anfang versteckt -->
+            <secion id ="detail" style="display: none;">
+                <button type="button" id="detail-close" aria-label="Close"><i class="ti ti-x"></i></button>
+
+                <!-- oben: Bild links, Name daneben-->
+                 <div id="detail-header">
+                    <img id="detail-bild" src="" alt="">
+                    <div>
+                        <p id="detail-nr"></p>
+                        <h2 id="detail-name"></h2>
+                    </div>
+                 </div>
+
+                <!-- darunter: alle weiteren Infos per JavaScript-->
+                 <div id ="detail-info"></div>
+            </secion>"
         </main>
     </div>
 
@@ -183,11 +200,15 @@ document.getElementById("filterbtn").addEventListener("click", filtern);
 document.getElementById("resetbtn").addEventListener("click", filterZuruecksetzen);
 document.getElementById("typ").value = "";   // typ wieder auf "alle typen"
 
-
+// hier merken wir uns alle Pokemon-Objekte aus der Datenbank
+let allePokemon = [];
+// das Pokemon, das die Suche zuletzt gefunden hat
+let gefundenesPokemon = null;
 
         async function getdatafromdb() {
             const response = await fetch('/api/pokemon'); // Server nach Daten fragen
             const pokedata = await response.json(); // Antwort in JS-Objekte umwandeln
+            allePokemon = pokedata; // List für später merken (z.B. für die Suche)
             const list = document.getElementById("pokemon-list"); // die leere Liste holen
 
             for (let pokemon of pokedata) { // für jedes Pokemon aus der Datenbank
@@ -203,6 +224,11 @@ document.getElementById("typ").value = "";   // typ wieder auf "alle typen"
                 imageelement.src = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/" + pokemon.id + ".png";
                 imageelement.loading = "lazy"; // bild erst laden, wenn man in die nähe scrollt
                 imageelement.alt = pokemon.name; // beschreibung des bildes, z.b. für screenreader
+
+                // Klick auf das Bild öffnet die Detailansicht für dieses Pokemon
+                imageelement.addEventListener("click", function () {
+                    zeigeDetail(pokemon);
+                });
 
                 // Nummer: padStart füllt vorne mit Nullen auf 4 Stellen auf (1 wird zu 0001)
                 const nrelement = document.createElement("p");
@@ -289,6 +315,7 @@ document.getElementById("typ").value = "";   // typ wieder auf "alle typen"
             if (eingabe === "") {
                 searchresponse.textContent = "Bitte Namen eingeben"; // wenn nichts eingegeben wurde
                 searchimage.style.display = "none";
+                gefundenesPokemon = null;
                 return;
             }
 
@@ -308,6 +335,11 @@ document.getElementById("typ").value = "";   // typ wieder auf "alle typen"
                 const image_in_card = treffer.querySelector("img");
                 searchresponse.textContent = name;
 
+                // das passende Pokemon Objekt über die Nummer der karte suchen
+                gefundenesPokemon = allePokemon.find(function (p) {
+                    return p.id === Number(treffer.dataset.id);
+                });
+
                 if (image_in_card) {
                     searchimage.src = image_in_card.src;
                     searchimage.alt = name;
@@ -317,14 +349,32 @@ document.getElementById("typ").value = "";   // typ wieder auf "alle typen"
             else {
                 searchresponse.textContent = "Kein Pokemon gefunden";
                 searchimage.style.display = "none";
+                gefundenesPokemon = null;
             }
         }
 
         searchbtn.addEventListener("click", searchforpokemon);
+
+        // Klick auf das Bild im Sucherergebnis öffnet die Detailansicht
+        searchimage.addEventListener("click", function () {
+            if (gefundenesPokemon !== null) {
+                zeigeDetail(gefundenesPokemon);
+            }
+        })
+
         // Suche auslösen, wenn im Textfeld "Enter" gedrückt wird
         searchbar.addEventListener("keydown", (event) => {
             if (event.key === "Enter") {
                 searchforpokemon();
+            }
+        });
+        // wird bei jeder Änderung im Suchfeld ausgeführt (tippen, löschen, einfügen)
+        searchbar.addEventListener("input", function () {
+            //ist das Feld jetzt leer, Sucherergebnis wieder entfernen
+            if (searchbar.value.trim() == "") {
+                searchresponse.textContent = "";        // Text löschen 
+                searchimage.style.display = "none";     // Bild verstecken
+                gefundenesPokemon = null;               // nichts mehr anklickbar
             }
         });
 
@@ -354,6 +404,116 @@ document.getElementById("typ").value = "";   // typ wieder auf "alle typen"
 
         // beim Klick auf "Favoriten" im Menü die Favoriten-Ansicht zeigen
         document.getElementById("favlink").addEventListener("click", zeigeFavoriten);
+
+        // merkt sich, wie weit man in der Liste gescrollt hatte
+        let gespeicherteScollPos = 0;
+
+        // holt ienen Text aus verschiedenen möglichen Datenformaten
+        // z.B. "fire" oder {name: "fire"}
+        function textVon(x) {
+            if (x === null || x === undefined) return "";
+            if (typeof x === "string" || typeof x ==="number") return String(x);
+            if (x.type && x.type.name) return x.type.name;
+            if (x.ability && x.ability.name) return x.ability.name;
+            if (x.name) return x.name;
+            return "";
+        }
+
+        // erstellt eine Zeile "Label. Wert"
+        function infoZeile(label, wert) {
+            const zeile = document.createElement("div");
+            zeile.className = "detail-row";
+
+            const labelelement = document.createElement("span");
+            labelelement.className = "detail-label";
+            labelelement.textContent = label;
+
+            const wertelement = document.createElement("span");
+            wertelement.className = "detail-wert";
+            wertelement.textContent = wert;
+
+            zeile.appendChild(labelelement);
+            zeile.appendChild(wertelement);
+
+            return zeile;
+        }
+
+        // zeigt die Detailansicht für ein Pokemon an
+        function zeigeDetail(pokemon) {
+            console.log(pokemon); //zum Nachschauen, welche Felder die Datenbank liefert
+
+            // 1. Scoll-Position merken, damit wir später wieder dahin zurückspringen können
+            gespeicherteScollPos = window.scrollY;
+
+            // 2. feste Elemente befüllen
+            document.getElementById("detail-bild").src = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/" + pokemon.id + ".png";
+            document.getElementById("detail-bild").alt = pokemon.name;
+            document.getElementById("detail-nr").textContent = "Nr. " + String(pokemon.id).padStart(4, "0");
+            document.getElementById("detail-name").textContent = pokemon.name;
+
+            // 3. Info-Bereich neu aufbauen
+            const info = document.getElementById("detail-info");
+            info.innerHTML = ""; // alten Inhalt von vorherigem Pokemon löschen
+
+            info.appendChild(infoZeile("Height", pokemon.height * 10 + " cm"));
+            info.appendChild(infoZeile("Weight", pokemon.weight / 10 + " kg"));
+
+            //diese Felder nur anzeigen, wenn sie in der Datenbank vorhanden sind
+            if (pokemon.base_experience) {
+                info.appendChild(infoZeile("Base Experience", pokemon.base_experience));
+            }
+
+            if (Array.isArray(pokemon.types) && pokemon.types.length > 0) {
+                info.appendChild(infoZeile("Type", pokemon.types.map(textVon).join(", ")));
+            }
+
+            if (Array.isArray(pokemon.abilitys) && pokemon.abilities.length > 0) {
+                info.appendChild(infoZeile("Abilities", pokemon.abilities.map(textVon).join(", ")));
+            }
+
+            if(Array.isArray(pokemon.stats)) {
+                for(let s of ppkemon.stats) {
+                    const name = s.stat ? textVon(s.stat) : s.name;
+                    const wert = s.base_stat !== undefined ? s.base_stat : s.value;
+
+                    const zeile = document.createElement("div");
+                    zeile.className = "detail-row";
+
+                    const labelelement = document.createElement("span");
+                    labelelement.className = "detail-label";
+                    labelelement.textContent = name;
+
+                    const zahl = document.createElement("span");
+                    zahl.className = "stat-zahl";
+                    zahl.textContent = wert;
+
+                    const bar = document.createElement("div");
+                    bar.className = "stat-bar";
+                    const fill = document.createElement("div");
+                    fill.className = "stat-fill";
+                    fill.style.width = Math.min(wert / 2, 100) + "%"; //200 = voller Balken
+                    bar.appendChild(fill);
+
+                    zeile.append(labelelement, zahl, bar);
+                    info.appendChild(zeile);
+
+                }
+            }
+
+            // 4. Liste verstecken, Detailansicht zeigen, anch oben springen
+            document.getElementById("pokemon-list").style.display = "none";
+            document.getElementById("detail").style.display = "block";
+            window.scrollTo(0, 0);
+        }
+
+        // schließt die Detailansicht und springt zurück an die alte Stelle
+        function schliesseDetail() {
+            document.getElementById("detail").style.display = "none";
+            document.getElementById("pokemon-list").style.display = "";
+            window.scrollTo(0, gespeicherteScollPos);
+        }
+
+        document.getElementById("detail-close").addEventListener("click", schliesseDetail);
 
         // beim Laden der Seite die Pokemon aus der Datenbank holen und anzeigen
         getdatafromdb();

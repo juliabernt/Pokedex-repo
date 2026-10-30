@@ -281,3 +281,103 @@ main {
     background-color: white;
     color: #2a75bb;
 }
+
+
+
+/* ===== Detailansicht ===== */
+
+/* Bild in der Kartenliste ist klickbar */
+#pokemon-list img {
+    cursor: pointer;
+}
+
+#detail {
+    position:relative; /* damit das X oben rechts sitzen kann */
+    background-color: white;
+    border: 1px solid #e2e5ea;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+}
+
+/* X-Button oben rechts */
+#detail-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 1.75rem;
+    color: #1f2d4d;
+    cursor: pointer;
+}
+
+/* Bild links, Name rechts daneben */
+#detail-header {
+    display: flex;
+    align-items: center;        /*Name vertikal mittig zum Bild*/
+    gap: 2rem;
+}
+
+#detail-bild {
+    width: 18rem;
+    height: 18rem;
+    object-fit: contain;
+    background-color: #eef0f4;
+    border-radius: 0.375rem;
+}
+
+#detail-nr {
+    margin: 0;
+    color: #8a92a3;
+}
+
+#detail-name {
+    margin: 0.25rem 0 0;
+    font-size: 2.5rem;
+    text-transform: capitalize;
+}
+
+/* Infos unterm Bild, linksbündig */
+#detail-info {
+    margin-top: 1.5rem;
+    max-width: 30rem;       /* nciht über die ganze Breite ziehen, damit lesbarer wirkt */
+}
+
+.detail-row {
+    display: flex;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e2e5ea;
+}
+
+.detail-label {
+    width: 10rem;               /* gleiche breite für alle labels */
+    color: #8a92a3;
+}
+
+.detail-wert {
+    text-transform: capitalize;
+}
+
+/* Stat-Balken */
+.stat-bar {
+    flex: 1;
+    height: 0.6rem;
+    background-color: #eef0f4;
+    border-radius: 0.3rem;
+    align-self: center;   /* vertikal mittig in der Zeile */
+}
+
+.stat-fill {
+    height: 100%;
+    background-color: #2a75bb;
+    border-radius: 0.3rem;
+}
+
+.stat-zahl {
+    width: 3rem;
+    text-align: right;
+}
+
+#searchimage {
+    cursor: pointer;
+}

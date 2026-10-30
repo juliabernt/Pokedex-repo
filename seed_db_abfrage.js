@@ -13,6 +13,18 @@ const app = express() // erstellt den Server und speichert ihn in "app"
 const path = require('path'); // Hilfswerkzeug, um Ordnerpfade richtig zu finden 
 app.use(express.static(path.join(__dirname, 'public'))); // macht die Webseite im Ordner "public" im Browser abrufbar
 
+//Schittstelle für Autovervollständigung bei Suche
+app.get('/api/pokemon/search', (req,res) => {
+    const query = req.query.q; //wenn /api/pokemon/search?q=pik, dann wird bei query pik gespeichert
+    if (!query) { //wenn query leer, wird eine leere Liste geschickt
+        return res.json([]);
+    }
+    // Sucht in der Pokémon-Tabelle nach Namen, die den Text aus query enthalten
+    const statement = pokedexdb.prepare('SELECT id, name FROM pokemon WHERE name LIKE ? LIMIT 10');
+    const results = statement.all(`${query}%`); //query% - suchbegriff und dann noch was, ${} um zu signalisieren, dass jetzt Variable kommt
+
+    res.json(results);
+})
 
 //Schnittstelle für Detailseiten
 app.get('/api/pokemon/:id', (req, res) => {
@@ -28,9 +40,9 @@ app.get('/api/pokemon/:id', (req, res) => {
     }
 })
 
-//Schnittstelle für Filter mit QUERY Params
+//Schnittstelle für Filter und allgemeine Route mit QUERY Parameters
 app.get('/api/pokemon', (req, res) => {
-    console.log("Empfangene Query-Parameter:", req.query);
+    //console.log("Empfangene Query-Parameter:", req.query);
     const { type, minHeight, maxHeight, minWeight, maxWeight } = req.query; // Alle möglichen Query-Parameter auslesen
     
     let query = 'SELECT DISTINCT pokemon.* FROM pokemon ';
@@ -86,6 +98,8 @@ app.get('/api/pokemon', (req, res) => {
         res.status(404).json({ error: "Keine Pokémon gefunden, die diesen Kriterien entsprechen" });
     }
 })
+
+
 
 app.listen(3000, () => { // starte den Server auf Port 3000 und gebe eine Meldung aus, dass er läuft
     console.log("Server läuft auf http://localhost:3000/api/pokemon");
