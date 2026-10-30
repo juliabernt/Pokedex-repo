@@ -155,6 +155,7 @@ main {
     display: grid;                         /* Raster */
     grid-template-columns: repeat(3, 1fr); /* 3 Karten pro Reihe */
     gap: 1.25rem;                          /* Abstand zwischen den Karten */
+        min-height: 100vh;   /* platz für die karten von anfang an reservieren, damit nichts springt */
 }
 
 /* eine Karte */

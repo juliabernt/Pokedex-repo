@@ -194,6 +194,8 @@ document.getElementById("typ").value = "";   // typ wieder auf "alle typen"
                 // Bild: URL aus festem Link + Pokemon-Nummer + .png zusammensetzen
                 const imageelement = document.createElement("img");
                 imageelement.src = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/" + pokemon.id + ".png";
+                imageelement.loading = "lazy"; // bild erst laden, wenn man in die nähe scrollt
+                imageelement.alt = pokemon.name; // beschreibung des bildes, z.b. für screenreader
 
                 // Nummer: padStart füllt vorne mit Nullen auf 4 Stellen auf (1 wird zu 0001)
                 const nrelement = document.createElement("p");
