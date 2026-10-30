@@ -96,6 +96,13 @@
         // localStorage kann nur Text speichern, deshalb wandelt JSON.parse den Text wieder in eine Liste um
         // gibt es noch keine Favoriten, starten wir mit einer leeren Liste []
         let favoriten = JSON.parse(localStorage.getItem("favoriten")) || [];
+        const typnamen = {
+            normal: "Normal", fire: "Feuer", water: "Wasser", grass: "Pflanze",
+        electric: "Elektro", ice: "Eis", fighting: "Kampf", poison: "Gift",
+        ground: "Boden", flying: "Flug", psychic: "Psycho", bug: "Käfer",
+        rock: "Gestein", ghost: "Geist", dragon: "Drache", dark: "Unlicht",
+        steel: "Stahl", fairy: "Fee"}; /* wie ein Übersetzer weil die namen ja auf englisch gelifert werden*/
+
         
 // prüft ob eine zahl zwischen "von" und "bis" liegt
 // gibt true zurück wenn sie passt, sonst false
@@ -217,6 +224,23 @@ document.getElementById("typ").value = "";   // typ wieder auf "alle typen"
                 const groesseelement = document.createElement("p");
                 groesseelement.className = "groesse";
                 groesseelement.textContent = pokemon.height * 10 + " cm";   // in cm umrechnen und einheit dahinter
+
+                const typencontainer = document.createElement("div"); /* baut leeren container div und gibt im die klasse typen*/
+                typencontainer.className = "typen";
+
+                const typenliste = pokemon.types.split(","); /* der Server shcikt die typen als text deshalb wird hier der text da auseinader geschnitten wo komma steht und liste draus geamcht*/
+
+
+
+
+
+
+
+
+
+
+
+
 
                 // Bild, Nummer und Name untereinander in die Karte legen
                 listelement.appendChild(imageelement);
