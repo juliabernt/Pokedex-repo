@@ -240,17 +240,7 @@ let gefundenesPokemon = null;
                 nameelement.className = "name";
                 nameelement.textContent = pokemon.name;
 
-                // Gewicht
-                const gewichtelement = document.createElement("p");
-                gewichtelement.className = "gewicht";
-                gewichtelement.textContent = pokemon.weight / 10 + " kg";   // in kg umrechnen und einheit dahinter
-
-                //Größe 
-
-                const groesseelement = document.createElement("p");
-                groesseelement.className = "groesse";
-                groesseelement.textContent = pokemon.height * 10 + " cm";   // in cm umrechnen und einheit dahinter
-
+              
                 const typencontainer = document.createElement("div"); /* baut leeren container div und gibt im die klasse typen*/
                 typencontainer.className = "typen";
 
@@ -273,8 +263,7 @@ let gefundenesPokemon = null;
                 listelement.appendChild(nrelement);
                 listelement.appendChild(nameelement);
                 listelement.appendChild(typencontainer);
-                listelement.appendChild(gewichtelement);
-                listelement.appendChild(groesseelement);
+            
 
                 // Stern-Button erstellen
                 const starbutton = document.createElement("button");
@@ -456,16 +445,20 @@ let gefundenesPokemon = null;
             const info = document.getElementById("detail-info");
             info.innerHTML = ""; // alten Inhalt von vorherigem Pokemon löschen
 
-            info.appendChild(infoZeile("Height", pokemon.height * 10 + " cm"));
-            info.appendChild(infoZeile("Weight", pokemon.weight / 10 + " kg"));
+            info.appendChild(infoZeile("Größe", pokemon.height * 10 + " cm"));
+            info.appendChild(infoZeile("Gewicht", pokemon.weight / 10 + " kg"));
 
             //diese Felder nur anzeigen, wenn sie in der Datenbank vorhanden sind
             if (pokemon.base_experience) {
-                info.appendChild(infoZeile("Base Experience", pokemon.base_experience));
+                info.appendChild(infoZeile("Basis Erfahrung", pokemon.base_experience));
             }
 
             if (Array.isArray(pokemon.types) && pokemon.types.length > 0) {
-                info.appendChild(infoZeile("Type", pokemon.types.map(textVon).join(", ")));
+                // jeden typ mit dem wörterbuch "typnamen" ins deutsche übersetzen, z.b. "grass" -> "Pflanze"
+                const deutscheTypen = pokemon.types.map(function (t) {
+                    return typnamen[textVon(t)];
+                });
+                info.appendChild(infoZeile("Typ", deutscheTypen.join(", ")));
             }
 
             if (Array.isArray(pokemon.abilitys) && pokemon.abilities.length > 0) {

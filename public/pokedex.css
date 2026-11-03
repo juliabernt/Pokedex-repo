@@ -193,13 +193,7 @@ main {
     color: #8a92a3;                /* grau */
 }
 
-/* gewicht und größe unter dem namen, klein und grau wie die nummer */
-.gewicht,
-.groesse {
-    margin: 0.25rem 0 0;
-    font-size: 0.85rem;
-    color: #8a92a3;
-}
+
 
 /* der Name */
 .name {
