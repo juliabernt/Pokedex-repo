@@ -18,7 +18,7 @@
         <nav id="topmenu">
             <a class="active" href="pokedex.html"><i class="ti ti-home"></i> Pokedex</a>
             <a href="#" id="favlink"><i class="ti ti-star"></i> Favoriten</a>
-            <a href="#"><i class="ti ti-scale"></i> Vergleichen</a>
+            <a href="#" id="comparelink"><i class="ti ti-scale"></i> Vergleichen</a>
             <a href="#"><i class="ti ti-users"></i> Über uns</a>
         </nav>
     </header>
@@ -381,6 +381,33 @@ let gefundenesPokemon = null;
         // beim Klick auf "Favoriten" im Menü die Favoriten-Ansicht zeigen
         document.getElementById("favlink").addEventListener("click", zeigeFavoriten);
 
+        // Vergleichen-Ansicht: noch nicht verfügbar
+        function zeigeVergleichen(event){
+            event.preventDefault(); //Verhindert das hochspringen durch href
+
+            //Detailansicht schließe, falls offen
+            document.getElementById("detail").style.display = "none";
+
+            // Liste einblenden, aber alle karten verstecken damit meldung bleibt
+            document.getElementById("pokemon-list").style.display = "";
+            const allPokemon = document.querySelectorAll("#pokemon-list li");
+            for (let li of allPokemon) {
+                li.style.display = "none";
+            }
+
+            // Suchergebnis zurücksetzen und Meldung zeigenn
+            searchimage.style.display = "none";
+            gefundenesPokemon = null;
+            searchresponse.textContent = "Die Vergleichfunktion ist leider noch nicht verfügbar.";
+
+            // im Menü "Vergleichen" als aktive seite markieren
+            document.querySelector("#topmenu .active").classList.remove("active");
+            document.getElementById("comparelink").classList.add("active");
+
+        }
+
+        document.getElementById("comparelink").addEventListener("click", zeigeVergleichen);
+
         // merkt sich, wie weit man in der Liste gescrollt hatte
         let gespeicherteScollPos = 0;
 
@@ -415,33 +442,6 @@ let gefundenesPokemon = null;
             return zeile;
         }
 
-        // erstellt eine Zeile mit Name, Zahl und Balken (für KP, Angriff usw.)
-        function statZeile(label, wert) {
-            const zeile = document.createElement("div");
-            zeile.className = "detail-row";
-
-            const labelelement = document.createElement("span");
-            labelelement.className = "detail-label";
-            labelelement.textContent = label;
-
-            const zahl = document.createElement("span");
-            zahl.className = "stat-zahl";
-            zahl.textContent = wert;
-
-            const bar = document.createElement("div");
-            bar.className = "stat-bar";
-            const fill = document.createElement("div");
-            fill.className = "stat-fill";
-            fill.style.width = Math.min(wert / 2, 100) + "%";   // 200 = voller Balken
-            bar.appendChild(fill);
-
-            zeile.append(labelelement, zahl, bar);
-            return zeile;
-        }
-
-
-
-
         // zeigt die Detailansicht für ein Pokemon an
         function zeigeDetail(pokemon) {
             console.log(pokemon); //zum Nachschauen, welche Felder die Datenbank liefert
@@ -462,10 +462,10 @@ let gefundenesPokemon = null;
             info.appendChild(infoZeile("Größe", pokemon.height * 10 + " cm"));
             info.appendChild(infoZeile("Gewicht", pokemon.weight / 10 + " kg"));
             info.appendChild(infoZeile("Typ", pokemon.types.map(textVon).join(", ")));
-            info.appendChild(statZeile("KP", pokemon.hp));
-            info.appendChild(statZeile("Angriff", pokemon.attack));
-            info.appendChild(statZeile("Verteidigung", pokemon.defense));
-            info.appendChild(statZeile("Initiative", pokemon.speed));
+            info.appendChild(infoZeile("KP", pokemon.hp));
+            info.appendChild(infoZeile("Angriff", pokemon.attack));
+            info.appendChild(infoZeile("Verteidigung", pokemon.defense));
+            info.appendChild(infoZeile("Initiative", pokemon.speed));
 
 
             // 4. Liste verstecken, Detailansicht zeigen, anch oben springen

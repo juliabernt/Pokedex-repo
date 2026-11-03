@@ -358,26 +358,10 @@ main {
     text-transform: capitalize;
 }
 
-/* Stat-Balken */
-.stat-bar {
-    flex: 1;
-    height: 0.6rem;
-    background-color: #eef0f4;
-    border-radius: 0.3rem;
-    align-self: center;   /* vertikal mittig in der Zeile */
-}
-
-.stat-fill {
-    height: 100%;
-    background-color: #2a75bb;
-    border-radius: 0.3rem;
-}
-
-.stat-zahl {
-    width: 3rem;
-    text-align: right;
-}
-
 #searchimage {
     cursor: pointer;
+}
+
+#searchresponse {
+    margin-top: 3rem;
 }
