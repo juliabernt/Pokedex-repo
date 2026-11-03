@@ -106,14 +106,26 @@ main {
 /* ===== Suche ===== */
 #searchbar-cont {
     display: flex;
+    flex-wrap: nowrap;     /* Verhindert, dass der Button auf Handys nach unten springt */
+    align-items: center;
     justify-content: center;   /* Suchfeld und Button in die Mitte */
+    gap: 0.5rem;
     margin-bottom: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Der Wrapper für Suchfeld und Vorschlagsliste */
+.search-wrapper {
+    position: relative;
+    flex: 1;
+    max-width: 37.5rem;
 }
 
 /* das Suchfeld: blau umrandet und eckig */
 #searchbar {
-    width: 60%;
-    max-width: 37.5rem;
+    width: 100%;
+    box-sizing: border-box;
     font-size: 1.1rem;
     padding: 0.75rem 1rem;
     border: 2px solid #2a75bb;   /* blauer Rand */
@@ -130,6 +142,7 @@ main {
     border: 2px solid #2a75bb;
     border-radius: 0;            /* eckig */
     cursor: pointer;
+    flex-shrink: 0; /* Verhindert, dass der Button zusammengedrückt wird */
 }
 
 #searchbtn:hover {
@@ -416,4 +429,96 @@ main {
 .typ-fighting,
 .typ-bug {
     color: white;
+}
+
+/* ===== Autovervollständigungs-Liste ===== */
+#suggestions-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    box-sizing: border-box;
+    background: white;
+    border: 2px solid #2a75bb;
+    border-top: none;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    z-index: 1000; /*sorgt dafür, dass die Liste im Vordergrund schwebt*/
+    max-height: 200px;
+    overflow-y: auto; /*ab einer bestimmten Länge automatisch ein kompakter Scrollbalken*/
+}
+
+#suggestions-list li {
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    text-align: left;
+    text-transform: capitalize;
+    font-size: 1.05rem;
+    color: #1f2d4d;
+    border-bottom: 1px solid #f4f5f7;
+}
+
+#suggestions-list li:hover {
+    background-color: #f4f5f7;
+    color: #2a75bb;
+}
+
+#suggestions-list:empty {
+    display: none;
+}
+
+/* ===== Handy-Ansicht & Responsives Design ===== */
+@media (max-width: 768px) { /*wenn bildschirm kleiner als 768px*/
+    /* Header kompakter machen */
+    header {
+        flex-direction: column;
+        gap: 0.75rem;
+        text-align: center;
+        padding: 1rem;
+    }
+
+    #topmenu {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    /* Sidebar und Hauptinhalt untereinander stapeln */
+    #layout-container {
+        flex-direction: column;
+    }
+
+    #sidemenu {
+        width: 100%;
+        position: static;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid #e2e5ea;
+        box-sizing: border-box;
+    }
+
+    /* Die Suchzeile bleibt auf dem Handy nebeneinander! */
+    #searchbar-cont {
+        flex-direction: row;
+        flex-wrap: nowrap;
+    }
+
+    /* Pokémon-Karten von 3 Spalten auf 1 Spalte reduzieren */
+    #pokemon-list {
+        grid-template-columns: 1fr;
+        padding: 0;
+    }
+
+    #detail-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    #detail-bild {
+        width: 100%;
+        max-width: 15rem;
+        height: auto;
+    }
 }

@@ -22,7 +22,7 @@
             <a href="#"><i class="ti ti-users"></i> Über uns</a>
         </nav>
     </header>
-          <div id="layout-container">
+    <div id="layout-container">
         <!-- seitenleiste links mit den filtern -->
         <nav id="sidemenu">
             <h3>Filter</h3>
@@ -42,8 +42,8 @@
                 <span>bis</span>
                 <input type="number" id="groesse-bis" placeholder="bis">
             </div>
-        
-                        <!-- typ: auswahlliste, der wert (value) ist der englische name, so wie er in der datenbank steht -->
+
+            <!-- typ: auswahlliste, der wert (value) ist der englische name, so wie er in der datenbank steht -->
             <label>Typ</label>
             <select id="typ">
                 <option value="">alle Typen</option>
@@ -74,7 +74,10 @@
         </nav>
         <main>
             <div id="searchbar-cont">
-                <input type="text" id="searchbar" placeholder="Pokémon suchen..."> <!-- Suchfeld -->
+                <div class="search-wrapper">
+                    <input type="text" id="searchbar" placeholder="Pokémon suchen..." autocomplete="off">
+                    <ul id="suggestions-list"></ul>
+                </div>
                 <button type="button" id="searchbtn">Suchen</button>
             </div>
 
@@ -85,21 +88,21 @@
             <ul id="pokemon-list"></ul>
 
             <!-- Detailansicht: am Anfang versteckt -->
-            <secion id ="detail" style="display: none;">
+            <section id="detail" style="display: none;">
                 <button type="button" id="detail-close" aria-label="Close"><i class="ti ti-x"></i></button>
 
                 <!-- oben: Bild links, Name daneben-->
-                 <div id="detail-header">
+                <div id="detail-header">
                     <img id="detail-bild" src="" alt="">
                     <div>
                         <p id="detail-nr"></p>
                         <h2 id="detail-name"></h2>
                     </div>
-                 </div>
+                </div>
 
                 <!-- darunter: alle weiteren Infos per JavaScript-->
-                 <div id ="detail-info"></div>
-            </secion>"
+                <div id="detail-info"></div>
+            </section>
         </main>
     </div>
 
@@ -115,95 +118,96 @@
         let favoriten = JSON.parse(localStorage.getItem("favoriten")) || [];
         const typnamen = {
             normal: "Normal", fire: "Feuer", water: "Wasser", grass: "Pflanze",
-        electric: "Elektro", ice: "Eis", fighting: "Kampf", poison: "Gift",
-        ground: "Boden", flying: "Flug", psychic: "Psycho", bug: "Käfer",
-        rock: "Gestein", ghost: "Geist", dragon: "Drache", dark: "Unlicht",
-        steel: "Stahl", fairy: "Fee"}; /* wie ein Übersetzer weil die namen ja auf englisch gelifert werden*/
+            electric: "Elektro", ice: "Eis", fighting: "Kampf", poison: "Gift",
+            ground: "Boden", flying: "Flug", psychic: "Psycho", bug: "Käfer",
+            rock: "Gestein", ghost: "Geist", dragon: "Drache", dark: "Unlicht",
+            steel: "Stahl", fairy: "Fee"
+        }; /* wie ein Übersetzer weil die namen ja auf englisch gelifert werden*/
 
-        
-// prüft ob eine zahl zwischen "von" und "bis" liegt
-// gibt true zurück wenn sie passt, sonst false
-// ist ein feld leer, wird diese grenze einfach ignoriert
-function imBereich(zahl, von, bis) {
-    // wenn eine untere grenze eingegeben wurde und die zahl kleiner ist -> passt nicht
-    if (von !== "" && zahl < Number(von)) {
-        return false;
-    }
-    // wenn eine obere grenze eingegeben wurde und die zahl größer ist -> passt nicht
-    if (bis !== "" && zahl > Number(bis)) {
-        return false;
-    }
-    // sonst liegt die zahl im bereich -> passt
-    return true;
-}
 
-// wird beim klick auf "filtern" ausgeführt
-// "async", weil wir für den typ beim server nachfragen und auf die antwort warten müssen
-async function filtern() {
-    // die eingaben aus den feldern holen
-    const gewichtVon = document.getElementById("gewicht-von").value;
-    const gewichtBis = document.getElementById("gewicht-bis").value;
-    const groesseVon = document.getElementById("groesse-von").value;
-    const groesseBis = document.getElementById("groesse-bis").value;
-    const typ = document.getElementById("typ").value;
-
-    // wenn ein typ ausgewählt ist: beim server nachfragen, welche pokemon diesen typ haben
-    // erlaubteIds bleibt null, wenn kein typ ausgewählt ist (dann passt jeder typ)
-    let erlaubteIds = null;
-    if (typ !== "") {
-        const response = await fetch("/api/pokemon?type=" + typ); // z.b. /api/pokemon?type=fire
-        const daten = await response.json();
-
-        // nur die nummern der passenden pokemon in einer liste sammeln
-        erlaubteIds = [];
-        for (let pokemon of daten) {
-            erlaubteIds.push(pokemon.id);
+        // prüft ob eine zahl zwischen "von" und "bis" liegt
+        // gibt true zurück wenn sie passt, sonst false
+        // ist ein feld leer, wird diese grenze einfach ignoriert
+        function imBereich(zahl, von, bis) {
+            // wenn eine untere grenze eingegeben wurde und die zahl kleiner ist -> passt nicht
+            if (von !== "" && zahl < Number(von)) {
+                return false;
+            }
+            // wenn eine obere grenze eingegeben wurde und die zahl größer ist -> passt nicht
+            if (bis !== "" && zahl > Number(bis)) {
+                return false;
+            }
+            // sonst liegt die zahl im bereich -> passt
+            return true;
         }
-    }
 
-    // alle pokemon-karten holen und einzeln prüfen
-    const allPokemon = document.querySelectorAll("#pokemon-list li");
-    for (let li of allPokemon) {
-        const gewicht = Number(li.dataset.gewicht);
-        const groesse = Number(li.dataset.groesse);
-        const id = Number(li.dataset.id);
+        // wird beim klick auf "filtern" ausgeführt
+        // "async", weil wir für den typ beim server nachfragen und auf die antwort warten müssen
+        async function filtern() {
+            // die eingaben aus den feldern holen
+            const gewichtVon = document.getElementById("gewicht-von").value;
+            const gewichtBis = document.getElementById("gewicht-bis").value;
+            const groesseVon = document.getElementById("groesse-von").value;
+            const groesseBis = document.getElementById("groesse-bis").value;
+            const typ = document.getElementById("typ").value;
 
-        // typ passt, wenn kein typ ausgewählt ist ODER die nummer in der erlaubten liste steht
-        const passtTyp = erlaubteIds === null || erlaubteIds.includes(id);
+            // wenn ein typ ausgewählt ist: beim server nachfragen, welche pokemon diesen typ haben
+            // erlaubteIds bleibt null, wenn kein typ ausgewählt ist (dann passt jeder typ)
+            let erlaubteIds = null;
+            if (typ !== "") {
+                const response = await fetch("/api/pokemon?type=" + typ); // z.b. /api/pokemon?type=fire
+                const daten = await response.json();
 
-        // nur anzeigen wenn gewicht UND größe UND typ passen
-        if (imBereich(gewicht, gewichtVon, gewichtBis) && imBereich(groesse, groesseVon, groesseBis) && passtTyp) {
-            li.style.display = "";      // karte anzeigen
-        } else {
-            li.style.display = "none";  // karte verstecken
+                // nur die nummern der passenden pokemon in einer liste sammeln
+                erlaubteIds = [];
+                for (let pokemon of daten) {
+                    erlaubteIds.push(pokemon.id);
+                }
+            }
+
+            // alle pokemon-karten holen und einzeln prüfen
+            const allPokemon = document.querySelectorAll("#pokemon-list li");
+            for (let li of allPokemon) {
+                const gewicht = Number(li.dataset.gewicht);
+                const groesse = Number(li.dataset.groesse);
+                const id = Number(li.dataset.id);
+
+                // typ passt, wenn kein typ ausgewählt ist ODER die nummer in der erlaubten liste steht
+                const passtTyp = erlaubteIds === null || erlaubteIds.includes(id);
+
+                // nur anzeigen wenn gewicht UND größe UND typ passen
+                if (imBereich(gewicht, gewichtVon, gewichtBis) && imBereich(groesse, groesseVon, groesseBis) && passtTyp) {
+                    li.style.display = "";      // karte anzeigen
+                } else {
+                    li.style.display = "none";  // karte verstecken
+                }
+            }
         }
-    }
-}
 
-// wird beim klick auf "zurücksetzen" ausgeführt
-function filterZuruecksetzen() {
-    // alle vier felder leeren
-    document.getElementById("gewicht-von").value = "";
-    document.getElementById("gewicht-bis").value = "";
-    document.getElementById("groesse-von").value = "";
-    document.getElementById("groesse-bis").value = "";
+        // wird beim klick auf "zurücksetzen" ausgeführt
+        function filterZuruecksetzen() {
+            // alle vier felder leeren
+            document.getElementById("gewicht-von").value = "";
+            document.getElementById("gewicht-bis").value = "";
+            document.getElementById("groesse-von").value = "";
+            document.getElementById("groesse-bis").value = "";
 
-    // alle karten wieder anzeigen
-    const allPokemon = document.querySelectorAll("#pokemon-list li");
-    for (let li of allPokemon) {
-        li.style.display = "";
-    }
-}
+            // alle karten wieder anzeigen
+            const allPokemon = document.querySelectorAll("#pokemon-list li");
+            for (let li of allPokemon) {
+                li.style.display = "";
+            }
+        }
 
-// die buttons mit den funktionen verbinden
-document.getElementById("filterbtn").addEventListener("click", filtern);
-document.getElementById("resetbtn").addEventListener("click", filterZuruecksetzen);
-document.getElementById("typ").value = "";   // typ wieder auf "alle typen"
+        // die buttons mit den funktionen verbinden
+        document.getElementById("filterbtn").addEventListener("click", filtern);
+        document.getElementById("resetbtn").addEventListener("click", filterZuruecksetzen);
+        document.getElementById("typ").value = "";   // typ wieder auf "alle typen"
 
-// hier merken wir uns alle Pokemon-Objekte aus der Datenbank
-let allePokemon = [];
-// das Pokemon, das die Suche zuletzt gefunden hat
-let gefundenesPokemon = null;
+        // hier merken wir uns alle Pokemon-Objekte aus der Datenbank
+        let allePokemon = [];
+        // das Pokemon, das die Suche zuletzt gefunden hat
+        let gefundenesPokemon = null;
 
         async function getdatafromdb() {
             const response = await fetch('/api/pokemon'); // Server nach Daten fragen
@@ -217,7 +221,7 @@ let gefundenesPokemon = null;
                 listelement.dataset.id = pokemon.id;
                 listelement.dataset.gewicht = pokemon.weight / 10; // in kg umrechnen
                 listelement.dataset.groesse = pokemon.height * 10; // in cm umrechnen
-                
+
 
                 // Bild: URL aus festem Link + Pokemon-Nummer + .png zusammensetzen
                 const imageelement = document.createElement("img");
@@ -255,7 +259,7 @@ let gefundenesPokemon = null;
                     typelement.className = "typ typ-" + typname;   // z.b. "typ typ-grass", bestimmt die farbe
                     typelement.textContent = typnamen[typname];    // deutscher name, z.b. "Pflanze"
                     typencontainer.appendChild(typelement);
-                } 
+                }
 
 
                 // Bild, Nummer und Name untereinander in die Karte legen
@@ -299,6 +303,7 @@ let gefundenesPokemon = null;
         const searchbtn = document.getElementById("searchbtn");
         const searchresponse = document.getElementById("searchresponse");
         const searchimage = document.getElementById("searchimage");
+        const suggestionsList = document.getElementById("suggestions-list");
 
         function searchforpokemon() { // unsere Methode für die Suche von Pokemons
             const eingabe = searchbar.value.toLowerCase().trim(); // Eingabe vom Nutzer
@@ -358,13 +363,51 @@ let gefundenesPokemon = null;
                 searchforpokemon();
             }
         });
-        // wird bei jeder Änderung im Suchfeld ausgeführt (tippen, löschen, einfügen)
-        searchbar.addEventListener("input", function () {
-            //ist das Feld jetzt leer, Sucherergebnis wieder entfernen
-            if (searchbar.value.trim() == "") {
-                searchresponse.textContent = "";        // Text löschen 
-                searchimage.style.display = "none";     // Bild verstecken
-                gefundenesPokemon = null;               // nichts mehr anklickbar
+        // wird bei jeder Änderung im Suchfeld ausgeführt (tippen, löschen, einfügen und Autovervollständigung)
+        searchbar.addEventListener("input", async function () {
+            const query = searchbar.value.trim();
+
+            // Ist das Feld leer, alles zurücksetzen und Vorschläge leeren
+            if (query === "") {
+                searchresponse.textContent = "";
+                searchimage.style.display = "none";
+                gefundenesPokemon = null;
+                suggestionsList.innerHTML = "";
+                return;
+            }
+
+            try {
+                // Fragt die Backend-Route für die Suche ab
+                const response = await fetch(`/api/pokemon/search?q=${encodeURIComponent(query)}`);
+                const pokemons = await response.json();
+
+                // Alte Vorschläge leeren
+                suggestionsList.innerHTML = "";
+
+                // Für jedes gefundene Pokémon einen Listeneintrag erstellen
+                pokemons.forEach(pokemon => {
+                    const li = document.createElement("li");
+                    li.textContent = pokemon.name;
+
+                    // Klick auf einen Vorschlag übernimmt den Namen und sucht
+                    li.addEventListener("click", () => {
+                        searchbar.value = pokemon.name;
+                        suggestionsList.innerHTML = "";
+                        searchforpokemon();
+                    });
+
+                    suggestionsList.appendChild(li);
+                });
+
+            } catch (error) {
+                console.error("Fehler bei der Autovervollständigung:", error);
+            }
+        });
+
+        // Klick irgendwo außerhalb des Suchbereichs schließt die Vorschlagsliste
+        document.addEventListener("click", (e) => {
+            if (!e.target.closest("#searchbar-cont")) {
+                suggestionsList.innerHTML = "";
             }
         });
 
@@ -402,7 +445,7 @@ let gefundenesPokemon = null;
         // z.B. "fire" oder {name: "fire"}
         function textVon(x) {
             if (x === null || x === undefined) return "";
-            if (typeof x === "string" || typeof x ==="number") return String(x);
+            if (typeof x === "string" || typeof x === "number") return String(x);
             if (x.type && x.type.name) return x.type.name;
             if (x.ability && x.ability.name) return x.ability.name;
             if (x.name) return x.name;
@@ -465,8 +508,8 @@ let gefundenesPokemon = null;
                 info.appendChild(infoZeile("Abilities", pokemon.abilities.map(textVon).join(", ")));
             }
 
-            if(Array.isArray(pokemon.stats)) {
-                for(let s of ppkemon.stats) {
+            if (Array.isArray(pokemon.stats)) {
+                for (let s of pokemon.stats) {
                     const name = s.stat ? textVon(s.stat) : s.name;
                     const wert = s.base_stat !== undefined ? s.base_stat : s.value;
 
