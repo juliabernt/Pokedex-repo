@@ -193,7 +193,7 @@
             document.getElementById("gewicht-bis").value = "";
             document.getElementById("groesse-von").value = "";
             document.getElementById("groesse-bis").value = "";
-
+            document.getElementById("typ").value = "";   // typ wieder auf "alle typen"
             // alle karten wieder anzeigen
             const allPokemon = document.querySelectorAll("#pokemon-list li");
             for (let li of allPokemon) {
@@ -204,7 +204,7 @@
         // die buttons mit den funktionen verbinden
         document.getElementById("filterbtn").addEventListener("click", filtern);
         document.getElementById("resetbtn").addEventListener("click", filterZuruecksetzen);
-        document.getElementById("typ").value = "";   // typ wieder auf "alle typen"
+        
 
         // hier merken wir uns alle Pokemon-Objekte aus der Datenbank
         let allePokemon = [];
