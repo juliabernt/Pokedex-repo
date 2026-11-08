@@ -102,5 +102,5 @@ app.get('/api/pokemon', (req, res) => {
 
 
 app.listen(3000, () => { // starte den Server auf Port 3000 und gebe eine Meldung aus, dass er läuft
-    console.log("Server läuft auf http://localhost:3000/api/pokemon");
+    console.log("Server läuft auf http://localhost:3000");
 });

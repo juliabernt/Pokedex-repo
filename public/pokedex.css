@@ -21,15 +21,16 @@ header {
 
 }
 
-/* die Überschrift "POKEMON" */
-h1 {
-    margin: 0;                   /* Standard-Abstand entfernen */
-    font-size: 2rem;
-    color: #ffcb05;              /* Pokemon-Gelb */
-    letter-spacing: 0.25rem;     /* Abstand zwischen den Buchstaben */
-    text-transform: uppercase;   /* alles in Großbuchstaben */
-        -webkit-text-stroke: 0.08rem #1c4f8c;   /* NEU: dunkelblauer Rand um die Buchstaben */
-    text-shadow: 0.15rem 0.15rem 0 #1c4f8c; /* NEU: leichter Schatten wie beim Logo */
+/* das Logo "POKEDEX" */
+.logo {
+    height: 2.5em; /* Passt das Logo in die Höhe des Headers ein */
+    width: auto;
+    display: block;
+}
+
+.logo-link {
+    display: inline-block;
+    text-decoration: none;
 }
 
 /* ===== Menüleiste ===== */
