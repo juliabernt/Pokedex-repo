@@ -176,7 +176,9 @@ main {
     list-style: none;                      /* Aufzählungspunkte entfernen */
     padding: 0;
     display: grid;                         /* Raster */
-    grid-template-columns: repeat(3, 1fr); /* 3 Karten pro Reihe */
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); /* So viele Spalten, wie reinpassen */
+    justify-content: center;
+    align-content: start;
     gap: 1.25rem;                          /* Abstand zwischen den Karten */
         min-height: 100vh;   /* platz für die karten von anfang an reservieren, damit nichts springt */
 }
@@ -188,6 +190,10 @@ main {
     border: 1px solid #e2e5ea;     /* feiner grauer Rand */
     border-radius: 0.5rem;         /* leicht abgerundet */
     padding: 0.75rem;
+    width: 100%;            /* Karte füllt ihre Spalte aus */
+    box-sizing: border-box; /* Rand und Innenabstand zählen mit */
+    max-width: 24rem;       /* nie breiter als 24rem */
+    justify-self: center;
 }
 
 /* das Bild: zentriert auf grauem Feld */

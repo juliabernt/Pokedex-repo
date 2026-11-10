@@ -316,34 +316,32 @@
                 return;
             }
 
+            suggestionsList.innerHTML = "";                               // Vorschlagsliste schließen
+            document.getElementById("detail").style.display = "none";     // Detailansicht schließen
+            document.getElementById("pokemon-list").style.display = "";   // Kartenliste einblenden
+
+
             const allPokemon = document.querySelectorAll("#pokemon-list li"); // gibt alle Karten aus der Liste zurück
-            let treffer = null;
+            let anzahl = 0; //Anzahl Treffer
 
             for (let i of allPokemon) {
-                if (i.querySelector(".name").textContent.toLowerCase().includes(eingabe)) { // nur im Namen suchen
-                    treffer = i;
-                    break;
+                if (i.querySelector(".name").textContent.toLowerCase().startsWith(eingabe)) { // nur im Namen suchen
+                    i.style.display = ""; // passt -> Karte anzeigen
+                    anzahl++;             // Trefferzähler um 1 erhöhen
+                } else {
+                    i.style.display = "none"; // passt nicht -> Karte verstecken
                 }
             }
 
             // Ergebnis der Suche anzeigen
-            if (treffer != null) {
-                const name = treffer.querySelector(".name").textContent; // den Namen aus der Karte holen
-                const image_in_card = treffer.querySelector("img");
-                searchresponse.textContent = name;
-
-                // das passende Pokemon Objekt über die Nummer der karte suchen
-                gefundenesPokemon = allePokemon.find(function (p) {
-                    return p.id === Number(treffer.dataset.id);
-                });
-
-                if (image_in_card) {
-                    searchimage.src = image_in_card.src;
-                    searchimage.alt = name;
-                    searchimage.style.display = "block"; // Bild anzeigen
-                }
+            if (anzahl > 0) {
+                //Mindestens ein Treffer -> Anzahl melden, die passenden Karten sind schon sichtbar
+                searchresponse.textContent = anzahl + " Pokémon gefunden";
+                gefundenesPokemon = null;             // man muss keine Pokemons mehr merken
+                searchimage.style.display = "none";   // Suchbild nicht mehr gebraucht
             }
             else {
+                //Kein Treffer -> Meldung anzeigen + alle Karten verstecken
                 searchresponse.textContent = "Kein Pokemon gefunden";
                 searchimage.style.display = "none";
                 gefundenesPokemon = null;
@@ -375,6 +373,14 @@
                 searchimage.style.display = "none";
                 gefundenesPokemon = null;
                 suggestionsList.innerHTML = "";
+
+                // Alle Karten wieder anzeigen, weil das Suchfeld leer ist
+                const alleKarten = document.querySelectorAll("#pokemon-list li");
+                for (let li of alleKarten) {
+                    li.style.display = "";
+                }
+
+                return;
                 return;
             }
 
