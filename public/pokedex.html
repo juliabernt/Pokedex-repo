@@ -21,7 +21,7 @@
             <a class="active" href="pokedex.html"><i class="ti ti-home"></i> Pokedex</a>
             <a href="#" id="favlink"><i class="ti ti-star"></i> Favoriten</a>
             <a href="#" id="comparelink"><i class="ti ti-scale"></i> Vergleichen</a>
-            <a href="#"><i class="ti ti-users"></i> Über uns</a>
+            <a href="#" id="aboutLink"><i class="ti ti-users"></i> Über uns</a>
         </nav>
     </header>
     <div id="layout-container">
@@ -114,7 +114,7 @@
     </div>
 
     <footer>
-        <p>Pokedex Projekt | Web-Programmierung | Armbruster, Bendig, Bernt</p>
+        <p>Pokedex Projekt | Web-Programmierung | DHBW Stuttgart | Armbruster, Bendig, Bernt</p>
     </footer>
 
 
@@ -155,6 +155,7 @@
         const suggestionsList = document.getElementById("suggestions-list");
         const favlink = document.getElementById("favlink");
         const comparelink = document.getElementById("comparelink");
+        const aboutlink = document.getElementById("aboutLink");
 
 
         // ===== 2. Hilfsfunktionen =====
@@ -431,19 +432,28 @@
             }
             setzeAktivenMenuepunkt(favlink);
         }
-
-        // Vergleichen-Ansicht: noch nicht verfügbar, es erscheint nur eine Meldung
-        function zeigeVergleichen(event) {
-            event.preventDefault();   // Verhindert das Hochspringen durch href="#"
-
+        // Zeigt nur eine Meldung ohne Karten und markiert den Menüpunkt als aktive Seite
+        function zeigeMeldung(text, link) {
             zeigeListe();
             loescheSuchergebnis();
 
             // Alle Karten verstecken, damit nur die Meldung sichtbar bleibt
             zeigeKartenWenn(function () { return false; });
 
-            searchresponse.textContent = "Die Vergleichsfunktion ist leider noch nicht verfügbar.";
-            setzeAktivenMenuepunkt(comparelink);
+            searchresponse.textContent = text;
+            setzeAktivenMenuepunkt(link);
+        }
+
+        // Vergleichen-Ansicht: noch nicht verfügbar, es erscheint nur eine Meldung
+        function zeigeVergleichen(event) {
+            event.preventDefault();   // Verhindert das Hochspringen durch href="#"
+            zeigeMeldung("Die Vergleichsfunktion ist leider noch nicht verfügbar.", comparelink);
+        }
+
+        // Über-uns-Ansicht: zeigt den Text aus der Fußzeile als Meldung
+        function zeigeUeberUns(event) {
+            event.preventDefault();   // Verhindert das Hochspringen durch href="#"
+            zeigeMeldung(document.querySelector("footer p").textContent, aboutlink);
         }
 
         // ===== 7. Detailansicht =====
@@ -542,6 +552,7 @@
         // Menü und Detailansicht
         favlink.addEventListener("click", zeigeFavoriten);
         comparelink.addEventListener("click", zeigeVergleichen);
+        aboutlink.addEventListener("click", zeigeUeberUns);
         document.getElementById("detail-close").addEventListener("click", schliesseDetail);
 
         // Start: Typ-Auswahl zurücksetzen (Browser merken sich Auswahlen), dann Pokemon holen und anzeigen
