@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 
 <head>
     <meta charset="UTF-8">
@@ -91,7 +91,7 @@
 
             <!-- Detailansicht: am Anfang versteckt -->
             <section id="detail" style="display: none;">
-                <button type="button" id="detail-close" aria-label="Close"><i class="ti ti-x"></i></button>
+                <button type="button" id="detail-close" aria-label="Schließen"><i class="ti ti-x"></i></button>
 
                 <!-- oben: Bild links, Name daneben-->
                 <div id="detail-header">
@@ -193,7 +193,8 @@
             document.getElementById("gewicht-bis").value = "";
             document.getElementById("groesse-von").value = "";
             document.getElementById("groesse-bis").value = "";
-            document.getElementById("typ").value = "";   // typ wieder auf "alle typen"
+            document.getElementById("typ").value = "";
+
             // alle karten wieder anzeigen
             const allPokemon = document.querySelectorAll("#pokemon-list li");
             for (let li of allPokemon) {
@@ -204,7 +205,7 @@
         // die buttons mit den funktionen verbinden
         document.getElementById("filterbtn").addEventListener("click", filtern);
         document.getElementById("resetbtn").addEventListener("click", filterZuruecksetzen);
-        
+        document.getElementById("typ").value = "";   // typ wieder auf "alle typen"
 
         // hier merken wir uns alle Pokemon-Objekte aus der Datenbank
         let allePokemon = [];
@@ -316,32 +317,34 @@
                 return;
             }
 
-            suggestionsList.innerHTML = "";                               // Vorschlagsliste schließen
-            document.getElementById("detail").style.display = "none";     // Detailansicht schließen
-            document.getElementById("pokemon-list").style.display = "";   // Kartenliste einblenden
-
-
             const allPokemon = document.querySelectorAll("#pokemon-list li"); // gibt alle Karten aus der Liste zurück
-            let anzahl = 0; //Anzahl Treffer
+            let treffer = null;
 
             for (let i of allPokemon) {
-                if (i.querySelector(".name").textContent.toLowerCase().startsWith(eingabe)) { // nur im Namen suchen
-                    i.style.display = ""; // passt -> Karte anzeigen
-                    anzahl++;             // Trefferzähler um 1 erhöhen
-                } else {
-                    i.style.display = "none"; // passt nicht -> Karte verstecken
+                if (i.querySelector(".name").textContent.toLowerCase().includes(eingabe)) { // nur im Namen suchen
+                    treffer = i;
+                    break;
                 }
             }
 
             // Ergebnis der Suche anzeigen
-            if (anzahl > 0) {
-                //Mindestens ein Treffer -> Anzahl melden, die passenden Karten sind schon sichtbar
-                searchresponse.textContent = anzahl + " Pokémon gefunden";
-                gefundenesPokemon = null;             // man muss keine Pokemons mehr merken
-                searchimage.style.display = "none";   // Suchbild nicht mehr gebraucht
+            if (treffer != null) {
+                const name = treffer.querySelector(".name").textContent; // den Namen aus der Karte holen
+                const image_in_card = treffer.querySelector("img");
+                searchresponse.textContent = name;
+
+                // das passende Pokemon Objekt über die Nummer der karte suchen
+                gefundenesPokemon = allePokemon.find(function (p) {
+                    return p.id === Number(treffer.dataset.id);
+                });
+
+                if (image_in_card) {
+                    searchimage.src = image_in_card.src;
+                    searchimage.alt = name;
+                    searchimage.style.display = "block"; // Bild anzeigen
+                }
             }
             else {
-                //Kein Treffer -> Meldung anzeigen + alle Karten verstecken
                 searchresponse.textContent = "Kein Pokemon gefunden";
                 searchimage.style.display = "none";
                 gefundenesPokemon = null;
@@ -373,14 +376,6 @@
                 searchimage.style.display = "none";
                 gefundenesPokemon = null;
                 suggestionsList.innerHTML = "";
-
-                // Alle Karten wieder anzeigen, weil das Suchfeld leer ist
-                const alleKarten = document.querySelectorAll("#pokemon-list li");
-                for (let li of alleKarten) {
-                    li.style.display = "";
-                }
-
-                return;
                 return;
             }
 
@@ -420,7 +415,13 @@
         });
 
         // Favoriten-Ansicht: nur Karten anzeigen, deren Nummer in der Favoriten-Liste steht
-        function zeigeFavoriten() {
+        function zeigeFavoriten(event) {
+            event.preventDefault(); //Verhindert das hochspringen durch href
+
+            //Detailansicht schließen, falls offen
+            document.getElementById("detail").style.display = "none";
+            document.getElementById("pokemon-list").style.display = ""; // Liste einblenden
+
             const allPokemon = document.querySelectorAll("#pokemon-list li");
             for (let li of allPokemon) {
                 // dataset.id ist Text, deshalb mit Number() in eine Zahl umwandeln
@@ -509,10 +510,11 @@
 
         // zeigt die Detailansicht für ein Pokemon an
         function zeigeDetail(pokemon) {
-            console.log(pokemon); //zum Nachschauen, welche Felder die Datenbank liefert
 
             // 1. Scoll-Position merken, damit wir später wieder dahin zurückspringen können
-            gespeicherteScollPos = window.scrollY;
+            if (document.getElementById("pokemon-list").style.display !== "none") {
+                gespeicherteScollPos = window.scrollY;
+            }
 
             // 2. feste Elemente befüllen
             document.getElementById("detail-bild").src = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/" + pokemon.id + ".png";
@@ -526,7 +528,6 @@
 
             info.appendChild(infoZeile("Größe", pokemon.height * 10 + " cm"));
             info.appendChild(infoZeile("Gewicht", pokemon.weight / 10 + " kg"));
-            info.appendChild(infoZeile("Typ", pokemon.types.map(textVon).join(", ")));
             info.appendChild(infoZeile("KP", pokemon.hp));
             info.appendChild(infoZeile("Angriff", pokemon.attack));
             info.appendChild(infoZeile("Verteidigung", pokemon.defense));
@@ -536,47 +537,6 @@
             //diese Felder nur anzeigen, wenn sie in der Datenbank vorhanden sind
             if (pokemon.base_experience) {
                 info.appendChild(infoZeile("Basis Erfahrung", pokemon.base_experience));
-            }
-
-            if (Array.isArray(pokemon.types) && pokemon.types.length > 0) {
-                // jeden typ mit dem wörterbuch "typnamen" ins deutsche übersetzen, z.b. "grass" -> "Pflanze"
-                const deutscheTypen = pokemon.types.map(function (t) {
-                    return typnamen[textVon(t)];
-                });
-                info.appendChild(infoZeile("Typ", deutscheTypen.join(", ")));
-            }
-
-            if (Array.isArray(pokemon.abilitys) && pokemon.abilities.length > 0) {
-                info.appendChild(infoZeile("Abilities", pokemon.abilities.map(textVon).join(", ")));
-            }
-
-            if (Array.isArray(pokemon.stats)) {
-                for (let s of pokemon.stats) {
-                    const name = s.stat ? textVon(s.stat) : s.name;
-                    const wert = s.base_stat !== undefined ? s.base_stat : s.value;
-
-                    const zeile = document.createElement("div");
-                    zeile.className = "detail-row";
-
-                    const labelelement = document.createElement("span");
-                    labelelement.className = "detail-label";
-                    labelelement.textContent = name;
-
-                    const zahl = document.createElement("span");
-                    zahl.className = "stat-zahl";
-                    zahl.textContent = wert;
-
-                    const bar = document.createElement("div");
-                    bar.className = "stat-bar";
-                    const fill = document.createElement("div");
-                    fill.className = "stat-fill";
-                    fill.style.width = Math.min(wert / 2, 100) + "%"; //200 = voller Balken
-                    bar.appendChild(fill);
-
-                    zeile.append(labelelement, zahl, bar);
-                    info.appendChild(zeile);
-
-                }
             }
 
             // 4. Liste verstecken, Detailansicht zeigen, anch oben springen
