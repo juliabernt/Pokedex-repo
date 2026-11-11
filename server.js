@@ -1,12 +1,13 @@
 /*
-  Dieser Code startet einen kleinen Server auf Port 3000.
--> zeigt die Webseite aus dem Ordner "public"
--> holt alle Pokémon aus der Datenbank und schickt sie als JSON
+  Webserver-Skript für den Pokédex
+  - Startet einen Express-Server auf Port 3000
+  - Stellt statische Frontend-Dateien aus dem "public"-Ordner bereit
+  - Bietet REST-Schnittstellen für Suche, Detailansichten und Filter
 */
 
 const express = require('express'); // lädt das Paket Express, mit dem man einen Webserver baut
 const Database = require('better-sqlite3');// lädt das Paket für SQLite-Datenbanken
-const pokedexdb = new Database('pokedex.db'); //wird nicht neu erstellt, stellt nur die verbindung her // Claude sagt // öffnet die Datenbankdatei pokedex.db (fehlt sie, wird sie leer neu angelegt)
+const pokedexdb = new Database('pokedex.db'); // Verbindung zur SQLite-Datenbank herstellen
 
 const app = express() // erstellt den Server und speichert ihn in "app"
 
@@ -19,9 +20,9 @@ app.get('/api/pokemon/search', (req,res) => {
     if (!query) { //wenn query leer, wird eine leere Liste geschickt
         return res.json([]);
     }
-    // Sucht in der Pokémon-Tabelle nach Namen, die den Text aus query enthalten
+    // Sucht in der Pokémon-Tabelle nach Namen, die den Text aus query enthalten (max 10 Ergebnisse)
     const statement = pokedexdb.prepare('SELECT id, name FROM pokemon WHERE name LIKE ? LIMIT 10');
-    const results = statement.all(`${query}%`); //query% - suchbegriff und dann noch was, ${} um zu signalisieren, dass jetzt Variable kommt
+    const results = statement.all(`${query}%`);
 
     res.json(results);
 })
@@ -40,20 +41,19 @@ app.get('/api/pokemon/:id', (req, res) => {
     }
 })
 
-//Schnittstelle für Filter und allgemeine Route mit QUERY Parameters
+//Schnittstelle für kombinierte Filter und allgemeine Abfragen (Typ, Größe, Gewicht)
 app.get('/api/pokemon', (req, res) => {
-    //console.log("Empfangene Query-Parameter:", req.query);
     const { type, minHeight, maxHeight, minWeight, maxWeight } = req.query; // Alle möglichen Query-Parameter auslesen
     
     let query = 'SELECT DISTINCT pokemon.* FROM pokemon ';
     const params = [];
 
-    //Filter nach Typ
+    //Filter nach Pokémon-Typ
     if(type) {
         query = query + ' JOIN pokemon_types ON pokemon.id = pokemon_types.pokemon_id JOIN types ON pokemon_types.type_id = types.id WHERE types.name = ?';
         params.push(type); //in den leeren array hinzufügen
     } else {
-        query = query + 'WHERE 1=1';
+        query = query + 'WHERE 1=1'; //Platzhalter-Bedingung, falls kein Typ gewählt wurde, 1=1 ist immmer wahr, lässt sich gut erweitern
     }
 
     //Filter nach Mindestgröße
@@ -81,9 +81,9 @@ app.get('/api/pokemon', (req, res) => {
     }
 
     const statement = pokedexdb.prepare(query);
-    const results = statement.all(...params); //...params packt die Elemente des Arrays nacheinander aus und übergibt sie einzeln an die funktion
+    const results = statement.all(...params); //...params packt die Elemente des Arrays nacheinander aus und übergibt sie einzeln an die Funktion
 
-
+    // Wenn Treffer vorliegen, auch die zugehörigen Typen für jedes Pokémon mitermitteln
     if(results.length > 0) {
         const resultsWithTypes = results.map(pokemon => {
             const typestmt = pokedexdb.prepare('SELECT types.name FROM types JOIN pokemon_types ON types.id = pokemon_types.type_id WHERE pokemon_types.pokemon_id = ?');
@@ -100,7 +100,8 @@ app.get('/api/pokemon', (req, res) => {
 })
 
 
-
+// Server auf Port 3000 starten
 app.listen(3000, () => { // starte den Server auf Port 3000 und gebe eine Meldung aus, dass er läuft
     console.log("Server läuft auf http://localhost:3000");
 });
+//in dem Terminal ausführen: node server.js 

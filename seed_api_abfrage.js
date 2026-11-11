@@ -1,9 +1,9 @@
-// 1. NEU: SQLite-Paket laden und Datenbank-Datei öffnen/erstellen
+//SQLite-Paket laden und Verbindung zur Datenbank herstellen
 const Database = require('better-sqlite3');
 const pokedexdb = new Database('pokedex.db');
-pokedexdb.pragma('foreign_keys = ON'); //Fremdschlüssel werden schärfer kontrolliert. // pokedexdb.pragma('foreign_keys = ON'); // sorgt dafür, dass Verknüpfungen nur auf existierende Einträge zeigen dürfen (bei SQLite sonst aus)
+pokedexdb.pragma('foreign_keys = ON'); //Aktiviert die Integritätsprüfung für Fremdschlüssel, sorgt dafür, dass Verknüpfungen nur auf existierende Einträge zeigen dürfen (bei SQLite sonst aus)
 
-// 2. NEU: Tabellen anlegen
+// Funktion zum Erstellen der notwendigen Tabellen, falls diese noch nicht existieren
 function setupDatabase() {
     pokedexdb.exec(`
         CREATE TABLE IF NOT EXISTS pokemon (
@@ -40,7 +40,7 @@ function getStatValue(statsArray, statName) {
     //ist entry da?  bei true      bei false
 }
 
-//HIER FÄNGT DAS LADEN VON DATEN VON DER API AN UND SPEICHERN IN DER DB
+//HAUPTFUNKTION: Lädt alle Pokémon-Daten von der PokéAPI und speichert sie in der DB
 async function loadPokemon() {
     //Tabellen initialisieren
     setupDatabase();
@@ -63,14 +63,13 @@ async function loadPokemon() {
         INSERT OR IGNORE INTO pokemon_types (pokemon_id, type_id) VALUES (?, ?)
     `);
 
-    //Daten laden von der PokéAPI
+    //Daten abrufen von der PokéAPI
     console.log("Loading Pokemon data...");
     const url = "https://pokeapi.co/api/v2/pokemon?limit=2000";
-    // fetching normal pokemon info
     const output_api = await fetch(url);
     const data = await output_api.json();
 
-    //fetching pokemon details for each pokemon and output in the terminal
+    // Für jedes Pokémon die Detaildaten abrufen und in der Datenbank speichern
     console.log("Data is here, now fetching details and saving to database...");
     for (let i of data.results) {
         const detailed_output_api = await fetch(i.url);
