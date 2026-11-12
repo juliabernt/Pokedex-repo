@@ -398,6 +398,7 @@
             // Ist das Feld leer, alles zurücksetzen und Vorschläge leeren
             if (query === "") {
                 loescheSuchergebnis();
+                zeigeKartenWenn(function () { return true; });   // Alle Karten wieder anzeigen
                 suggestionsList.innerHTML = "";
                 return;
             }
