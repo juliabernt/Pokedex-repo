@@ -106,4 +106,4 @@ async function loadPokemon() {
     console.log("All data loaded and saved to the database.");
 }
 loadPokemon();
-// in dem Terminal ausführen: node seed_api_abfrage.js
+// in dem Terminal ausführen: node seed.js
