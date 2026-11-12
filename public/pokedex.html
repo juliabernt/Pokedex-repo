@@ -349,32 +349,45 @@
         // ===== 5. Suche =====
 
         // Sucht das erste Pokemon, dessen Name die Eingabe enthält, und zeigt es an
-        function searchforpokemon() {
-            const eingabe = searchbar.value.toLowerCase().trim();
-            suggestionsList.innerHTML = "";   // Vorschlagsliste schließen
-
+        function searchforpokemon() { // unsere Methode für die Suche von Pokemons
+            const eingabe = searchbar.value.toLowerCase().trim(); // Eingabe vom Nutzer
             if (eingabe === "") {
-                loescheSuchergebnis();
-                searchresponse.textContent = "Bitte Namen eingeben";
+                searchresponse.textContent = "Bitte Namen eingeben"; // wenn nichts eingegeben wurde
+                searchimage.style.display = "none";
+                gefundenesPokemon = null;
                 return;
             }
 
-            const treffer = allePokemon.find(function (pokemon) {
-                return pokemon.name.toLowerCase().includes(eingabe);
-            });
+            suggestionsList.innerHTML = "";                               // Vorschlagsliste schließen
+            document.getElementById("detail").style.display = "none";     // Detailansicht schließen
+            document.getElementById("pokemon-list").style.display = "";   // Kartenliste einblenden
 
-            if (!treffer) {
-                loescheSuchergebnis();
+
+            const allPokemon = document.querySelectorAll("#pokemon-list li"); // gibt alle Karten aus der Liste zurück
+            let anzahl = 0; //Anzahl Treffer
+
+            for (let i of allPokemon) {
+                if (i.querySelector(".name").textContent.toLowerCase().startsWith(eingabe)) { // nur im Namen suchen
+                    i.style.display = ""; // passt -> Karte anzeigen
+                    anzahl++;             // Trefferzähler um 1 erhöhen
+                } else {
+                    i.style.display = "none"; // passt nicht -> Karte verstecken
+                }
+            }
+
+            // Ergebnis der Suche anzeigen
+            if (anzahl > 0) {
+                //Mindestens ein Treffer -> Anzahl melden, die passenden Karten sind schon sichtbar
+                searchresponse.textContent = anzahl + " Pokémon gefunden";
+                gefundenesPokemon = null;             // man muss keine Pokemons mehr merken
+                searchimage.style.display = "none";   // Suchbild nicht mehr gebraucht
+            }
+            else {
+                //Kein Treffer -> Meldung anzeigen + alle Karten verstecken
                 searchresponse.textContent = "Kein Pokemon gefunden";
-                return;
+                searchimage.style.display = "none";
+                gefundenesPokemon = null;
             }
-
-            // Treffer merken, damit ein Klick auf das Bild die Detailansicht öffnen kann
-            gefundenesPokemon = treffer;
-            searchresponse.textContent = treffer.name;
-            searchimage.src = bildUrl(treffer.id);
-            searchimage.alt = treffer.name;
-            searchimage.style.display = "block";
         }
 
         // Holt Namensvorschläge vom Server und zeigt sie unter dem Suchfeld an
